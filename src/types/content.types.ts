@@ -97,7 +97,7 @@ export interface Home extends BasePageConfig {
   headline: React.ReactNode;
   /** Featured badge, which appears above the headline */
   featured: {
-    title: ReactNode;
+    title: React.ReactNode;
     display: boolean;
     items: Array<{
       title: React.ReactNode;
