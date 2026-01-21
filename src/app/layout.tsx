@@ -4,8 +4,6 @@ import "@/resources/custom.css";
 
 import classNames from "classnames";
 
-import { Analytics } from "@vercel/analytics/react";
-
 import {
   Background,
   Column,
