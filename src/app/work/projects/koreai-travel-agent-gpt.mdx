@@ -1,0 +1,80 @@
+---
+title: "Travel Agent GPT on Kore.ai (GenAI + Orchestration)"
+publishedAt: "2025-07-17"
+summary: "A production-style travel assistant built on Kore.ai that uses Generative AI for preference extraction, destination generation, and itinerary creation with reusable dialog-task components."
+images:
+  - "/images/projects/koreai/cover-01.png"
+
+team:
+  - name: "Ashwin Prajeeth"
+    role: "Engineering Management Graduate Student"
+    avatar: "/images/Ash.jpeg"
+    linkedIn: "https://www.linkedin.com/in/ashwinprajeeth/"
+---
+
+### Demo
+
+[**Travel Agent GPT**](https://www.linkedin.com/posts/ashwinprajeeth_aiagents-agenticai-artificialintelligence-activity-7348839926060240896-XDH9?utm_source=share&utm_medium=member_desktop&rcm=ACoAADEV5dQBlXLlRbnDn582_4Ts5x5hp0ehTIM)
+
+## Overview
+
+This project is a GenAI-powered travel planning assistant built on Kore.ai. It supports both new and repeat users, extracts travel preferences from free-form input, and generates structured destination and itinerary outputs.
+
+## Problem
+
+Travel planning typically requires multiple back-and-forth steps to collect preferences, confirm constraints, and create an itinerary. Traditional bots struggle with ambiguous user inputs and frequently break when entity extraction is unreliable.
+
+## Solution
+
+A Kore.ai bot architecture that uses Generative AI to:
+
+- Extract preferences from natural language (destination, budget, travel type, dates, interests)
+- Personalize outputs using historical context for repeat users
+- Generate destinations and itineraries using reusable components
+- Handle edge cases with structured JSON prompt contracts and session persistence
+
+## Architecture
+
+**Core flows**
+
+- NewConsumerFlow: end-to-end onboarding and itinerary generation
+- RepeatedUserFlow: preference extraction + personalization using past travel context
+
+**Reusable components**
+
+1. Entities Extractor
+   - GenAI prompt node + interpretation + script extraction
+   - Stores results in `context.extractedEntities` and persists via session storage
+
+2. Destination Generator
+   - Generates destination options from extracted preferences
+   - Injects historical data for repeat users when available
+
+3. Itinerary Formatter
+   - Generates a structured TRIP-format itinerary
+   - Supports dynamic itinerary refinement (modify a single day without rewriting everything)
+
+**Reliability improvements**
+
+- Structured JSON-style system context for consistent extraction
+- Session persistence across dialog tasks
+- Replaced unreliable regex routing with GenAI-based intent extraction
+
+## Tech Stack
+
+- Kore.ai XO Platform (dialog tasks, entity extraction, routing)
+- Generative AI nodes (prompting + structured output)
+- Bot scripts for entity/session persistence
+- n8n (workflow ideas for future automation extensions)
+
+## Results
+
+- More reliable entity extraction across ambiguous user inputs
+- Reusable architecture across new and repeat user flows
+- Faster iteration by standardizing prompt contracts and storage patterns
+
+## What’s next
+
+- Itinerary Comparison Tool
+- Booking support and modification flows
+- External integrations: flights/hotels/local experiences

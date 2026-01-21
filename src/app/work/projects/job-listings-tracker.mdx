@@ -1,0 +1,74 @@
+---
+title: "Job Listings Tracker (Automation + Structured Pipeline)"
+publishedAt: "2025-08-01"
+summary: "A centralized job-tracking system that captures listings from multiple sources, normalizes them into a consistent schema, and keeps an up-to-date pipeline view for faster applications and follow-ups."
+images:
+  - "/images/projects/job-tracker/cover-01.png"
+  - "/images/projects/job-tracker/cover-02.png"
+  - "/images/projects/job-tracker/cover-03.png"
+  - "/images/projects/job-tracker/cover-04.png"
+team:
+  - name: "Ashwin Prajeeth"
+    role: "Engineering Management Graduate Student"
+    avatar: "/images/Ash.jpeg"
+    linkedIn: "https://www.linkedin.com/in/ashwinprajeeth/"
+---
+
+### Demo
+
+[**Job Listings Tracker Automation**](https://www.linkedin.com/posts/ashwinprajeeth_aiagents-automation-nocode-activity-7356277959755747328-Up8c?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAADEV5dQBlXLlRbnDn582_4Ts5x5hp0ehTIM)
+
+## Overview
+
+This project is a personal job-search pipeline tracker designed to reduce friction in capturing job listings and managing applications. It keeps everything in one place so I can move from discovery to application to follow-up without losing context.
+
+## Problem
+
+Job searching involves scattered data:
+
+- Job postings are spread across platforms
+- Roles have inconsistent formatting and missing details
+- It is easy to lose track of what was applied, what needs tailoring, and when to follow up
+
+## Solution
+
+A structured tracking system that:
+
+- Captures job listings into a single database
+- Normalizes core fields into a consistent schema
+- Tracks application status and next actions
+- Enables quick filtering by role, company, location, and priority
+
+## Architecture
+
+**Pipeline**
+
+1. Job listing captured (manual entry or automated ingestion)
+2. Normalization layer maps raw listing data into a consistent schema
+3. Status tracking updates as the application progresses
+4. Follow-up reminders and notes keep the pipeline actionable
+
+**Core schema**
+
+- Company, Role, Location, Link
+- Source, Date added
+- Status (Saved, Applied, Interviewing, Offer, Rejected)
+- Priority, Notes, Next action, Follow-up date
+
+## Tech Stack
+
+- Central store: Airtable or Google Sheets
+- Automation layer: n8n (planned or implemented)
+- Optional enrichment: GPT for role summarization and fit notes
+
+## Results
+
+- Reduced time spent context-switching across tabs and sources
+- Faster application turnaround by keeping next steps visible
+- Cleaner decision-making with consistent status and priority fields
+
+## What’s next
+
+- Auto-ingestion from LinkedIn and job boards via email parsing and saved searches
+- GPT-based resume tailoring checklist per role
+- Automated follow-up reminders and calendar blocks

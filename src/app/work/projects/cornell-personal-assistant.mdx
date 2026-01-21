@@ -1,0 +1,68 @@
+---
+title: "Cornell Personal Assistant (Agentic AI)"
+publishedAt: "2025-09-18"
+summary: "A modular agentic AI system that routes user requests to specialized agents for planning, reminders, research, and automation, with long-term memory stored in PostgreSQL."
+images:
+  - "/images/projects/cornell/cover-01.jpg"
+  - "/images/projects/cornell/cover-02.jpg"
+team:
+  - name: "Ashwin Prajeeth"
+    role: "Engineering Management Graduate Student"
+    avatar: "/images/Ash.jpeg"
+    linkedIn: "https://www.linkedin.com/in/ashwinprajeeth/"
+---
+
+### Demo
+
+[**Cornell Personal Assistant**](https://www.linkedin.com/feed/update/urn:li:activity:7359563269394632705/?originTrackingId=dEHmluVKTPS5qflUu2NU1A%3D%3D)
+
+## Overview
+
+I’m building a personal assistant system inspired by multi-agent orchestration patterns. The Core Orchestrator interprets natural language, routes tasks to specialized agents, and stores long-term memory in PostgreSQL.
+
+## Problem
+
+Managing classes, deadlines, reminders, job search tasks, and workflows across tools (Calendar, email, notes, trackers) creates constant context switching and missed tasks.
+
+## Solution
+
+A Core Orchestrator Agent that:
+
+- Extracts intent and entities from user requests
+- Routes to specialized agents (Calendar, Email, Finance, Weather & News, Research, Content Creation)
+- Stores and retrieves memory from PostgreSQL
+- Generates structured outputs that sync into tools like Notion
+
+## Architecture
+
+**Flow**
+
+1. User request → Core Orchestrator (GPT)
+2. Orchestrator outputs `{ intent, entities, next_agent }`
+3. Specialized agent runs actions (API calls, summaries, plans)
+4. Results are saved to memory (PostgreSQL) and pushed to downstream tools (Notion)
+
+**Key design choices**
+
+- Modular agents so each workflow remains maintainable
+- Strong prompt contracts for predictable JSON outputs
+- Memory layer for continuity across sessions
+
+## Tech Stack
+
+- OpenAI API (routing + reasoning)
+- n8n (workflow automation)
+- PostgreSQL (memory)
+- Google Calendar
+- Notion
+
+## Results
+
+- Reduced manual weekly planning overhead
+- More consistent follow-through via structured action plans
+
+## What’s next
+
+- Email triage agent
+- Weather & News daily digest
+- Resume and job-search automations

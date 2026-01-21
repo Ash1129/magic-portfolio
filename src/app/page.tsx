@@ -52,17 +52,36 @@ export default function Home() {
               paddingBottom="32"
               paddingLeft="12"
             >
-              <Badge
-                background="brand-alpha-weak"
-                paddingX="12"
-                paddingY="4"
-                onBackground="neutral-strong"
-                textVariant="label-default-s"
-                arrow={false}
-                href={home.featured.href}
-              >
-                <Row paddingY="2">{home.featured.title}</Row>
-              </Badge>
+              <Column gap="8" horizontal="center">
+                {home.featured.items?.length ? (
+                  home.featured.items.map((item) => (
+                    <Badge
+                      key={item.href}
+                      background="brand-alpha-weak"
+                      paddingX="12"
+                      paddingY="4"
+                      onBackground="neutral-strong"
+                      textVariant="label-default-s"
+                      arrow={false}
+                      href={item.href}
+                    >
+                      <Row paddingY="2">{item.title}</Row>
+                    </Badge>
+                  ))
+                ) : (
+                  <Badge
+                    background="brand-alpha-weak"
+                    paddingX="12"
+                    paddingY="4"
+                    onBackground="neutral-strong"
+                    textVariant="label-default-s"
+                    arrow={false}
+                    href={home.featured.href}
+                  >
+                    <Row paddingY="2">{home.featured.title}</Row>
+                  </Badge>
+                )}
+              </Column>
             </RevealFx>
           )}
           <RevealFx translateY="4" fillWidth horizontal="center" paddingBottom="16">

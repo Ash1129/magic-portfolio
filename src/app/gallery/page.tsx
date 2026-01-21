@@ -1,4 +1,4 @@
-import { Flex, Meta, Schema } from "@once-ui-system/core";
+import { Button, Flex, Meta, Schema } from "@once-ui-system/core";
 import GalleryView from "@/components/gallery/GalleryView";
 import { baseURL, gallery, person } from "@/resources";
 
@@ -15,6 +15,7 @@ export async function generateMetadata() {
 export default function Gallery() {
   return (
     <Flex maxWidth="l">
+      
       <Schema
         as="webPage"
         baseURL={baseURL}
@@ -28,6 +29,23 @@ export default function Gallery() {
           image: `${baseURL}${person.avatar}`,
         }}
       />
+      <Flex horizontal="start" style={{ marginBottom: "12.5rem" }}>
+        <Button
+          href="https://vsco.co/ashwinprajeeth/gallery"
+          target="_blank"
+          rel="noopener noreferrer"
+          // variant="solid"
+          size="s"
+          style={{
+            borderRadius: "9999px",
+            background: "var(--brand-background)",
+            color: "var(--brand-on-background)",
+          }}
+        >
+          View more on my VSCO ↗
+        </Button>
+      </Flex>
+      
       <GalleryView />
     </Flex>
   );

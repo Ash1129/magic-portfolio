@@ -1,3 +1,4 @@
+import ExperienceCarousel from "@/components/about/ExperienceCarousel";
 import {
   Avatar,
   Button,
@@ -49,6 +50,11 @@ export default function About() {
       display: about.technical.display,
       items: about.technical.skills.map((skill) => skill.title),
     },
+    {
+      title: about.miscellaneous?.title ?? "Miscellaneous",
+      display: Boolean(about.miscellaneous?.display),
+      items: about.miscellaneous?.sections?.map((s) => s.title) ?? [],
+    },
   ];
   return (
     <Column maxWidth="m">
@@ -96,7 +102,7 @@ export default function About() {
             <Avatar src={person.avatar} size="xl" />
             <Row gap="8" vertical="center">
               <Icon onBackground="accent-weak" name="globe" />
-              {person.location}
+              {person.locationLabel}
             </Row>
             {person.languages && person.languages.length > 0 && (
               <Row wrap gap="8">
@@ -147,7 +153,7 @@ export default function About() {
             </Heading>
             <Text
               className={styles.textAlign}
-              variant="display-default-xs"
+              variant="heading-default-xl"
               onBackground="neutral-weak"
             >
               {person.role}
@@ -218,9 +224,13 @@ export default function About() {
                         {experience.timeframe}
                       </Text>
                     </Row>
+
                     <Text variant="body-default-s" onBackground="brand-weak" marginBottom="m">
                       {experience.role}
                     </Text>
+
+                    
+
                     <Column as="ul" gap="16">
                       {experience.achievements.map(
                         (achievement: React.ReactNode, index: number) => (
@@ -231,30 +241,20 @@ export default function About() {
                           >
                             {achievement}
                           </Text>
-                        ),
+                        )
                       )}
+
                     </Column>
+
                     {experience.images && experience.images.length > 0 && (
-                      <Row fillWidth paddingTop="m" paddingLeft="40" gap="12" wrap>
-                        {experience.images.map((image, index) => (
-                          <Row
-                            key={index}
-                            border="neutral-medium"
-                            radius="m"
-                            minWidth={image.width}
-                            height={image.height}
-                          >
-                            <Media
-                              enlarge
-                              radius="m"
-                              sizes={image.width.toString()}
-                              alt={image.alt}
-                              src={image.src}
-                            />
-                          </Row>
-                        ))}
-                      </Row>
+                      <Column marginBottom="m">
+                        <ExperienceCarousel
+                          images={experience.images}
+                          title={experience.company}
+                        />
+                      </Column>
                     )}
+
                   </Column>
                 ))}
               </Column>
@@ -335,6 +335,55 @@ export default function About() {
               </Column>
             </>
           )}
+          {about.miscellaneous?.display && (
+          <>
+            <Heading
+              as="h2"
+              id={about.miscellaneous.title}
+              variant="display-strong-s"
+              marginTop="xl"
+              marginBottom="m"
+            >
+              {about.miscellaneous.title}
+            </Heading>
+
+            <Column fillWidth gap="xl" marginBottom="40">
+              {about.miscellaneous.sections.map((section) => (
+                <Column key={section.title} fillWidth gap="12">
+                  <Text
+                    id={section.title}
+                    variant="heading-default-xs"
+                    onBackground="neutral-weak"
+                    style={{ letterSpacing: "0.18em", textTransform: "uppercase" }}
+                  >
+                    {section.title}
+                  </Text>
+
+                  <Column gap="12">
+                    {section.items.map((item, idx) =>
+                      typeof item === "string" ? (
+                        <Text key={`${section.title}-${idx}`} variant="body-default-m">
+                          {item}
+                        </Text>
+                      ) : (
+                        <Text key={`${section.title}-${idx}`} variant="body-default-m">
+                          <a
+                            href={item.href}
+                            target={item.newTab === false ? undefined : "_blank"}
+                            rel={item.newTab === false ? undefined : "noopener noreferrer"}
+                          >
+                            {item.label}
+                            {item.newTab === false ? "" : " ↗"}
+                          </a>
+                        </Text>
+                      ),
+                    )}
+                  </Column>
+                </Column>
+              ))}
+            </Column>
+          </>
+        )}
         </Column>
       </Row>
     </Column>

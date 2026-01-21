@@ -1,5 +1,5 @@
-import { IconName } from "@/resources/icons";
-import { zones } from "tzdata";
+import type { IconName } from "@/resources/icons";
+import type { zones } from "tzdata";
 
 /**
  * IANA time zone string (e.g., 'Asia/Calcutta', 'Europe/Vienna').
@@ -25,6 +25,8 @@ export type Person = {
   email: string;
   /** IANA time zone location */
   location: IANATimeZone;
+  /** Location */
+  locationLabel?: string;
   /** Languages spoken */
   languages?: string[];
 };
@@ -95,8 +97,13 @@ export interface Home extends BasePageConfig {
   headline: React.ReactNode;
   /** Featured badge, which appears above the headline */
   featured: {
+    title: ReactNode;
     display: boolean;
-    title: React.ReactNode;
+    items: Array<{
+      title: React.ReactNode;
+      href: string;
+    }>;
+    // title: React.ReactNode;
     href: string;
   };
   /** The sub text which appears below the headline */
@@ -154,6 +161,7 @@ export interface About extends BasePageConfig {
       achievements: React.ReactNode[];
       /** Images related to the experience */
       images?: Array<{
+        // type?: "image" | "video"; // default = image
         /** Image source path */
         src: string;
         /** Image alt text */
@@ -209,6 +217,21 @@ export interface About extends BasePageConfig {
       }>;
     }>;
   };
+  miscellaneous?: {
+    display: boolean;
+    title: string;
+    sections: Array<{
+        title: string;
+        items: Array<
+          | string
+          | {
+              label: string;
+              href: string;
+              newTab?: boolean;
+            }
+        >;
+      }>;
+    };
 }
 
 /**
@@ -229,6 +252,7 @@ export interface Work extends BasePageConfig {}
  */
 export interface Gallery extends BasePageConfig {
   /** List of images in the gallery */
+
   images: Array<{
     /** Image source path */
     src: string;

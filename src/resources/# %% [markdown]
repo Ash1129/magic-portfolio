@@ -1,0 +1,544 @@
+# %% [markdown]
+# 1. Importing all the libraries required for the project.
+
+# %%
+# Basic data manipulation
+import numpy as np
+import pandas as pd
+
+# Visualization
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Scaling
+from sklearn.preprocessing import StandardScaler
+
+# Clustering
+from sklearn.cluster import KMeans
+
+# PCA
+from sklearn.decomposition import PCA
+
+# Metrics
+from sklearn.metrics import silhouette_score
+
+# Display settings
+pd.set_option('display.max_columns', None)
+sns.set(style="whitegrid")
+
+# %% [markdown]
+# **2. Data Used for the Project.**
+# The dataset used in this study comprises 100,000 transaction-level records from e-commerce. Each row represents a single customer transaction that possesses behavioral, regional, and advertising metrics. Although artificial, the dataset closely mirrors real-world e-commerce data structures and customer interaction patterns, making it suitable for segmentation analysis.
+
+# %%
+df = pd.read_csv("/content/Comprehensive Synthetic E-commerce Dataset.csv")
+df.head()
+
+# %% [markdown]
+# **Displaying the dimensionality of the Dataset:** The code below shows the dimensions of the dataset and displays if there are any missing values in the dataset.
+
+# %%
+print("Shape:", df.shape)
+print("Missing values:\n", df.isna().sum())
+df.describe(include='all')
+
+# %% [markdown]
+# **3. Creating customer-level features to categorize and isolate important drivers for K-means Clustering and PCA Analysis.** We have loaded the data and we are now going to analyze our data with unsupervised learning models in our Project.
+
+# %%
+# BUILD CUSTOMER-LEVEL FEATURES
+
+# Aggregate to customer level
+customer_df = df.groupby("Customer_ID").agg({
+    "Transaction_ID": "count",          # total number of transactions
+    "Revenue": ["sum", "mean"],         # total spend, avg spend
+    "Units_Sold": "mean",               # avg units per order
+    "Discount_Applied": "mean",         # avg discount applied
+    "Category": pd.Series.nunique,      # number of unique categories bought
+    "Clicks": "sum",                    # total clicks
+    "Impressions": "sum",               # total impressions
+    "Ad_Spend": "sum",                  # total ad spend
+    "Ad_CTR": "mean",                   # average CTR
+    "Ad_CPC": "mean"                    # average CPC
+}).reset_index()
+
+# Rename columns after aggregation
+customer_df.columns = [
+    "Customer_ID",
+    "total_orders",
+    "total_revenue",
+    "avg_order_value",
+    "avg_units",
+    "avg_discount",
+    "unique_categories",
+    "total_clicks",
+    "total_impressions",
+    "total_ad_spend",
+    "avg_ad_ctr",
+    "avg_ad_cpc"
+]
+
+# SELECT FEATURES FOR K-MEANS CLUSTERING
+
+features = [
+    "total_orders",
+    "total_revenue",
+    "avg_order_value",
+    "avg_units",
+    "avg_discount",
+    "unique_categories",
+    "total_clicks",
+    "total_impressions",
+    "total_ad_spend",
+    "avg_ad_ctr",
+    "avg_ad_cpc"
+]
+
+df_model = customer_df[features]
+
+# Preview the final modeling dataframe
+df_model.head()
+
+# %% [markdown]
+# **We have used Elbow Method and Silhouette scores** to calculate the optimal number of clusters that will be needed for our dataset. We will analyze the graph and use the appropriate number to divide our data into clusters.
+
+# %%
+scaler = StandardScaler()
+X = scaler.fit_transform(df_model)
+wcss = []
+sil_scores = []
+
+K_range = range(2, 10)
+
+for k in K_range:
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    kmeans.fit(X)
+    wcss.append(kmeans.inertia_)
+    sil_scores.append(silhouette_score(X, kmeans.labels_))
+
+plt.figure(figsize=(14,5))
+
+plt.subplot(1,2,1)
+plt.plot(K_range, wcss, marker='o')
+plt.title("Elbow Method")
+plt.xlabel("k")
+plt.ylabel("WCSS")
+
+plt.subplot(1,2,2)
+plt.plot(K_range, sil_scores, marker='o')
+plt.title("Silhouette Scores")
+plt.xlabel("k")
+plt.ylabel("Silhouette")
+
+plt.show()
+
+# %% [markdown]
+# 3.1. K-means clustering will be performed below, after doing sillhouette analysis and elbow method to find the optimal amount of clusters needed for customer segmentation. K-means will ensure to maximize seperation between distinct customer segments and aim to preserve homogenoity between data points with similar characteristics.
+
+# %%
+k_optimal = 4  # selected using elbow + silhouette
+
+kmeans = KMeans(n_clusters=k_optimal, random_state=42)
+clusters = kmeans.fit_predict(X)
+
+customer_df["cluster"] = clusters
+customer_df.head()
+
+# %% [markdown]
+# 3.1.1. We have graphed a Scatter-Matrix for KMeans. Identified clusters from earlier analysis need to have 4 distinct customer segments and those are going to be dependent on 11 features that are identified below, 12th pairplot variable is the cluster itself.
+
+# %%
+# ==========================================
+# Scatter-Matrix / Pairplot for KMeans
+
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Combine model data + cluster labels
+pairplot_df = customer_df[[
+    "total_orders",
+    "total_revenue",
+    "avg_order_value",
+    "avg_units",
+    "avg_discount",
+    "unique_categories",
+    "total_clicks",
+    "total_impressions",
+    "total_ad_spend",
+    "avg_ad_ctr",
+    "avg_ad_cpc",
+    "cluster"
+]]
+
+sns.pairplot(
+    pairplot_df,
+    hue="cluster",
+    palette="tab10",
+    diag_kind="kde",
+    plot_kws={'alpha': 0.6, 's': 30}
+)
+
+plt.suptitle("K-Means Clustering: Feature Scatter-Matrix", y=1.02, fontsize=16)
+plt.show()
+
+# %% [markdown]
+# 3.2: PCA Anlysis Begins: Based on the K-means clustering conducted above, we are diving into PCA analyis in order to identify which features influence the variability in the dataset the most. Factor loadings from the analysis will allow us to judge which features influence each cluster group (customer segment) the most. Moreover, the dimensionality of the dataset will also be reduced and classified in terms of overrarching engagement, transactions and price sensitive variables.
+
+# %%
+pca = PCA(n_components=2)
+pca_components = pca.fit_transform(X)
+
+customer_df["PC1"] = pca_components[:, 0]
+customer_df["PC2"] = pca_components[:, 1]
+
+
+
+# %%
+# PCA loadings: contribution of each feature to PC1 and PC2
+pca_loadings = pd.DataFrame(
+    pca.components_.T,
+    index=df_model.columns,
+    columns=['PC1', 'PC2']
+)
+
+pca_loadings
+
+# %% [markdown]
+# Plotting the clustered groups on principal component axis based on the loadings identified on all features that explain the variance amongst the data points.
+
+# %%
+# Plot the PCA projection
+plt.figure(figsize=(10, 7))
+sns.scatterplot(
+    data=customer_df,
+    x="PC1",
+    y="PC2",
+    hue="cluster",
+    palette="tab10",
+    alpha=0.8,
+    s=80
+)
+
+plt.title("Customer Segments Visualized in PCA Space", fontsize=14)
+plt.xlabel(f"PC1 ({pca.explained_variance_ratio_[0]*100:.2f}% variance)")
+plt.ylabel(f"PC2 ({pca.explained_variance_ratio_[1]*100:.2f}% variance)")
+plt.legend(title="Cluster", bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.grid(True)
+plt.show()
+
+
+# %% [markdown]
+# The code below produces the PCA bi-plot with feature arrows based on factor loadings.  
+
+# %%
+# PCA biplot with feature arrows
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(12, 9))
+
+# Scatter plot of PCA components
+sns.scatterplot(
+    data=customer_df,
+    x="PC1",
+    y="PC2",
+    hue="cluster",
+    palette="tab10",
+    alpha=0.6,
+    s=70
+)
+
+# Add feature arrows for PCA loadings
+for i, feature in enumerate(pca_loadings.index):
+    plt.arrow(
+        0, 0,
+        pca_loadings.PC1[i] * 5,   # scaled for visibility
+        pca_loadings.PC2[i] * 5,
+        color="black",
+        alpha=0.7,
+        head_width=0.1
+    )
+    plt.text(
+        pca_loadings.PC1[i] * 5 * 1.1,
+        pca_loadings.PC2[i] * 5 * 1.1,
+        feature,
+        fontsize=10
+    )
+
+plt.title("PCA Biplot – Customer Segments with Feature Loadings", fontsize=16)
+plt.xlabel(f"PC1 ({pca.explained_variance_ratio_[0]*100:.2f}% variance)")
+plt.ylabel(f"PC2 ({pca.explained_variance_ratio_[1]*100:.2f}% variance)")
+plt.grid(True)
+plt.show()
+
+# %%
+customer_df[['PC1','PC2','cluster']].to_csv("pca_output.csv", index=False)
+
+# %% [markdown]
+# Summarizing all feature averages based on clustered customer segments to gain insights on level of engagement, revenue being generated on different product vategories and ad spend that is required for each cluster group.
+
+# %%
+# Cluster Summary: Feature Averages
+
+cluster_summary = customer_df.groupby("cluster")[
+    [
+        "total_orders",
+        "total_revenue",
+        "avg_order_value",
+        "avg_units",
+        "avg_discount",
+        "unique_categories",
+        "total_clicks",
+        "total_impressions",
+        "total_ad_spend",
+        "avg_ad_ctr",
+        "avg_ad_cpc",
+    ]
+].mean().round(2)
+
+print("=== CLUSTER SUMMARY (MEAN VALUES PER FEATURE) ===")
+cluster_summary
+
+# %%
+# Interpret Each Cluster in Words
+
+for c in sorted(customer_df["cluster"].unique()):
+    print(f"\n==================== CLUSTER {c} ====================")
+
+    cluster_data = cluster_summary.loc[c]
+
+    print("\n--- Behavioral Summary ---")
+    print(f"• Orders per customer: {cluster_data['total_orders']}")
+    print(f"• Total revenue contribution: {cluster_data['total_revenue']}")
+    print(f"• Avg order value: {cluster_data['avg_order_value']}")
+    print(f"• Avg units per order: {cluster_data['avg_units']}")
+    print(f"• Avg discount sensitivity: {cluster_data['avg_discount']}")
+    print(f"• Product category diversity: {cluster_data['unique_categories']}")
+
+    print("\n--- Advertising Behavior ---")
+    print(f"• Ad clicks: {cluster_data['total_clicks']}")
+    print(f"• Impressions: {cluster_data['total_impressions']}")
+    print(f"• Ad spend allocated: {cluster_data['total_ad_spend']}")
+    print(f"• CTR performance: {cluster_data['avg_ad_ctr']}")
+    print(f"• CPC (cost per click): {cluster_data['avg_ad_cpc']}")
+
+    print("\n--- High-Level Interpretation ---")
+
+    # Basic rule-based persona tagging:
+    if cluster_data['total_revenue'] > cluster_summary['total_revenue'].median():
+        print("• Likely high-value customers.")
+    else:
+        print("• Lower revenue customers.")
+
+    if cluster_data['unique_categories'] > cluster_summary['unique_categories'].median():
+        print("• Broad category shoppers (variety seekers).")
+    else:
+        print("• Niche or category-focused shoppers.")
+
+    if cluster_data['total_clicks'] > cluster_summary['total_clicks'].median():
+        print("• Highly engaged with ads.")
+    else:
+        print("• Low ad engagement.")
+
+    print("\n======================================================")
+
+# %% [markdown]
+# Condional statements to generate marketing recemmendations based on the summarized analytics presented above.
+
+# %%
+# Generate Marketing Recommendations per Cluster
+
+def recommend_actions(row, cluster_id):
+    recs = []
+
+    # Revenue-based segmentation
+    if row['total_revenue'] > cluster_summary['total_revenue'].median():
+        recs.append("Offer VIP loyalty perks, exclusive early access, and tiered rewards.")
+    else:
+        recs.append("Use price-based incentives: discounts, bundle offers, and retargeting ads.")
+
+    # Category diversity
+    if row['unique_categories'] > cluster_summary['unique_categories'].median():
+        recs.append("Push cross-category recommendations and personalized discovery feeds.")
+    else:
+        recs.append("Show highly targeted product recommendations within their favorite category.")
+
+    # Ad engagement (Clicks)
+    if row['total_clicks'] > cluster_summary['total_clicks'].median():
+        recs.append("Focus on conversion optimization: stronger landing pages, urgency messaging.")
+    else:
+        recs.append("Use awareness-oriented ads, increase impressions, and test creatives.")
+
+    # Ad spend
+    if row['total_ad_spend'] > cluster_summary['total_ad_spend'].median():
+        recs.append("Optimize ROI: reduce CPC with better targeting & creative A/B tests.")
+    else:
+        recs.append("Increase budget gradually to test ROAS potential while monitoring CTR.")
+
+    # CTR performance
+    if row['avg_ad_ctr'] > cluster_summary['avg_ad_ctr'].median():
+        recs.append("Scale ad campaigns; CTR is strong. Allocate more spend to winning audiences.")
+    else:
+        recs.append("Test new creatives, refine audience targeting, and improve relevance.")
+
+    # CPC performance
+    if row['avg_ad_cpc'] < cluster_summary['avg_ad_cpc'].median():
+        recs.append("Leverage low CPC by scaling impression volume and testing new ad channels.")
+    else:
+        recs.append("Reduce cost by refining bidding strategy and frequency caps.")
+
+    # Core narrative summary
+    print(f"\n==================== CLUSTER {cluster_id}: RECOMMENDATIONS ====================")
+    for r in recs:
+        print(f"• {r}")
+    print("====================================================================\n")
+
+
+# Generate recommendations for each cluster
+for cid in cluster_summary.index:
+    recommend_actions(cluster_summary.loc[cid], cid)
+
+# %% [markdown]
+# Radar charts were a great way for the team to visualize features that most influenced variability in the datapoints across the different cluster groups, below we added a radar chart for each of the 4 cluster groups to see what features influence the behavior the most in order to build customer personas and classify their characteristics.
+
+# %%
+# Radar Charts for Customer Segmentation
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Features to visualize (same as clustering features)
+radar_features = [
+    "total_orders",
+    "total_revenue",
+    "avg_order_value",
+    "avg_units",
+    "avg_discount",
+    "unique_categories",
+    "total_clicks",
+    "total_impressions",
+    "total_ad_spend",
+    "avg_ad_ctr",
+    "avg_ad_cpc"
+]
+
+# Normalize cluster_summary for radar visualization
+norm_summary = (cluster_summary - cluster_summary.min()) / (cluster_summary.max() - cluster_summary.min())
+
+# Number of variables
+N = len(radar_features)
+angles = np.linspace(0, 2*np.pi, N, endpoint=False).tolist()
+angles += angles[:1]  # repeat first angle to close the circle
+
+# Create radar chart for each cluster
+for cluster_id in norm_summary.index:
+
+    values = norm_summary.loc[cluster_id].tolist()
+    values += values[:1]  # close loop
+
+    plt.figure(figsize=(8, 8))
+    ax = plt.subplot(111, polar=True)
+
+    # Draw the outline
+    plt.xticks(angles[:-1], radar_features, fontsize=9)
+    ax.set_rlabel_position(0)
+
+    # Plot data
+    ax.plot(angles, values, linewidth=2, linestyle='solid', label=f"Cluster {cluster_id}")
+    ax.fill(angles, values, alpha=0.25)
+
+    plt.title(f"Cluster {cluster_id}: Radar Chart Profile", size=14, y=1.08)
+    plt.legend(loc='upper right', bbox_to_anchor=(1.2, 1.1))
+    plt.show()
+
+# %% [markdown]
+# Adding customer personas to customer segments and creating an executive summary from all our results conducted above.
+
+# %%
+# ==========================================
+# 13. Automatic Cluster Naming (Personas)
+# ==========================================
+
+cluster_names = {}
+
+for cid, row in cluster_summary.iterrows():
+    name_parts = []
+
+    # Spending level
+    if row['total_revenue'] > cluster_summary['total_revenue'].median():
+        name_parts.append("High-Value")
+    else:
+        name_parts.append("Value-Conscious")
+
+    # Order frequency
+    if row['total_orders'] > cluster_summary['total_orders'].median():
+        name_parts.append("Frequent Buyers")
+    else:
+        name_parts.append("Occasional Buyers")
+
+    # Category diversity
+    if row['unique_categories'] > cluster_summary['unique_categories'].median():
+        name_parts.append("Category Explorers")
+    else:
+        name_parts.append("Category Loyalists")
+
+    # Ad engagement
+    if row['total_clicks'] > cluster_summary['total_clicks'].median():
+        name_parts.append("Ad-Engaged")
+    else:
+        name_parts.append("Low-Ad-Engagement")
+
+    # Combine into final name
+    cluster_names[cid] = " ".join(name_parts)
+    print(f"Cluster {cid}: {cluster_names[cid]}")
+
+# %%
+# Executive Summary of Segmentation Findings
+
+print("\n====================== EXECUTIVE SUMMARY ======================\n")
+
+print("This segmentation analysis identified four distinct customer groups "
+      "using K-Means clustering on key behavioral, transactional, and advertising metrics.\n")
+
+for cid in cluster_summary.index:
+    print(f"\n---------------------- SEGMENT {cid}: {cluster_names[cid]} ----------------------")
+
+    row = cluster_summary.loc[cid]
+
+    print("\nCustomer Profile:")
+    print(f"• Avg Orders: {row['total_orders']}")
+    print(f"• Avg Revenue: {row['total_revenue']}")
+    print(f"• Avg Order Value: {row['avg_order_value']}")
+    print(f"• Category Diversity: {row['unique_categories']}")
+    print(f"• Avg Discount Sensitivity: {row['avg_discount']}")
+
+    print("\nAd & Marketing Behavior:")
+    print(f"• Total Clicks: {row['total_clicks']}")
+    print(f"• Impressions: {row['total_impressions']}")
+    print(f"• Ad Spend: {row['total_ad_spend']}")
+    print(f"• CTR: {row['avg_ad_ctr']}")
+    print(f"• CPC: {row['avg_ad_cpc']}")
+
+    print("\nStrategic Insights:")
+    if "High-Value" in cluster_names[cid]:
+        print("• This segment contributes disproportionately to revenue.")
+    else:
+        print("• This segment is more price-sensitive and benefits from promotions.")
+
+    if "Frequent Buyers" in cluster_names[cid]:
+        print("• High engagement and purchase frequency: ideal for loyalty programs.")
+    else:
+        print("• Lower frequency: target with reactivation campaigns and personalized offers.")
+
+    if "Category Explorers" in cluster_names[cid]:
+        print("• Interested in diverse products: ideal for cross-selling strategies.")
+    else:
+        print("• More loyal to specific categories: ideal for focused category campaigns.")
+
+    if "Ad-Engaged" in cluster_names[cid]:
+        print("• Strong ad responsiveness: scale high-performing campaigns.")
+    else:
+        print("• Weak ad engagement: test new creative, channels, and audience targeting.")
+
+print("\n\n====================== END OF EXECUTIVE SUMMARY ======================\n")
+
+

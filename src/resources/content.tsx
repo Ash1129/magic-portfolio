@@ -1,55 +1,48 @@
-import { About, Blog, Gallery, Home, Newsletter, Person, Social, Work } from "@/types";
+import type { About, Blog, Gallery, Home, Newsletter, Person, Social, Work } from "@/types";
 import { Line, Row, Text } from "@once-ui-system/core";
 
 const person: Person = {
-  firstName: "Selene",
-  lastName: "Yu",
-  name: `Selene Yu`,
-  role: "Design Engineer",
-  avatar: "/images/avatar.jpg",
-  email: "example@gmail.com",
-  location: "Asia/Jakarta", // Expecting the IANA time zone identifier, e.g., 'Europe/Vienna'
-  languages: ["English", "Bahasa"], // optional: Leave the array empty if you don't want to display languages
+  firstName: "Ashwin",
+  lastName: "Prajeeth",
+  name: "Ashwin Prajeeth",
+  role: "Engineering Management Graduate Student - Cornell",
+  avatar: "/images/Ash.jpeg",
+  email: "ap2538@cornell.edu",
+  location: "America/New_York",
+  locationLabel: "America/New York",
+  languages: ["English", "Hindi", "Spanish"],
 };
 
 const newsletter: Newsletter = {
-  display: true,
+  // Turn this on later if you actually want a newsletter signup.
+  display: false,
   title: <>Subscribe to {person.firstName}'s Newsletter</>,
-  description: <>My weekly newsletter about creativity and engineering</>,
+  description: <>Notes on agentic AI, automation systems, and product strategy</>,
 };
 
 const social: Social = [
-  // Links are automatically displayed.
-  // Import new icons in /once-ui/icons.ts
-  // Set essentials: true for links you want to show on the about page
   {
     name: "GitHub",
     icon: "github",
-    link: "https://github.com/once-ui-system",
+    link: "https://github.com/Ash1129",
     essential: true,
   },
   {
     name: "LinkedIn",
     icon: "linkedin",
-    link: "https://www.linkedin.com/company/once-ui/",
-    essential: true,
-  },
-  {
-    name: "Instagram",
-    icon: "instagram",
-    link: "https://www.instagram.com/once_ui/",
-    essential: false,
-  },
-  {
-    name: "Threads",
-    icon: "threads",
-    link: "https://www.threads.com/@once_ui",
+    link: "https://www.linkedin.com/in/ashwinprajeeth/",
     essential: true,
   },
   {
     name: "Email",
     icon: "email",
-    link: `mailto:${person.email}`,
+    link: "mailto:ap2538@cornell.edu",
+    essential: true,
+  },
+  {
+    name: "📄 Resume",
+    icon: "fileText",
+    link: "/resume.pdf",
     essential: true,
   },
 ];
@@ -59,25 +52,57 @@ const home: Home = {
   image: "/images/og/home.jpg",
   label: "Home",
   title: `${person.name}'s Portfolio`,
-  description: `Portfolio website showcasing my work as a ${person.role}`,
-  headline: <>Building bridges between design and code</>,
+  description: `Portfolio website showcasing my work in ${person.role}`,
+  headline: <>Building real-world GenAI systems and Automations that automate work</>,
   featured: {
     display: true,
-    title: (
-      <Row gap="12" vertical="center">
-        <strong className="ml-4">Once UI</strong>{" "}
-        <Line background="brand-alpha-strong" vert height="20" />
-        <Text marginRight="4" onBackground="brand-medium">
-          Featured work
-        </Text>
-      </Row>
-    ),
-    href: "/work/building-once-ui-a-customizable-design-system",
+    // title: (
+    //   <Row gap="12" vertical="center">
+    //     <strong className="ml-4">Featured</strong>
+    //     <Line background="brand-alpha-strong" vert height="20" />
+    //     <Text marginRight="4" onBackground="brand-medium">
+    //       Grad Student Automation Suite
+    //     </Text>
+    //   </Row>
+    // ),
+    items: [
+      {
+        title: (
+          <Row gap="12" vertical="center">
+            <strong className="ml-4">Featured</strong>
+            <Line background="brand-alpha-strong" vert height="20" />
+            <Text marginRight="4" onBackground="brand-medium">
+              Cornell Personal Assistant
+            </Text>
+          </Row>
+        ),
+        href: "/work/cornell-personal-assistant",
+      },
+      {
+        title: (
+          <Row gap="12" vertical="center">
+            <strong className="ml-4">Featured</strong>
+            <Line background="accent-alpha-strong" vert height="20" />
+            <Text marginRight="4" onBackground="accent-medium">
+              Travel GPT
+            </Text>
+          </Row>
+        ),
+        href: "/work/koreai-travel-agent-gpt",
+      },
+    ],
+    href: "/work/cornell-personal-assistant",
+    title: undefined
   },
   subline: (
     <>
-    I'm Selene, a design engineer at <Text as="span" size="xl" weight="strong">ONCE UI</Text>, where I craft intuitive <br /> user experiences. After hours, I build my own projects.
-</>
+      I’m Ashwin, currently pursuing an M.Eng in Engineering Management at{" "}
+      <Text as="span" size="xl" weight="strong">
+        Cornell University
+      </Text>
+      . I build automation workflows and GenAI products using RAG, vector databases,
+      and cloud-native stacks.
+    </>
   ),
 };
 
@@ -85,7 +110,7 @@ const about: About = {
   path: "/about",
   label: "About",
   title: `About – ${person.name}`,
-  description: `Meet ${person.name}, ${person.role} from ${person.location}`,
+  description: `Meet ${person.name}, ${person.role} based in Ithaca, NY`,
   tableOfContent: {
     display: true,
     subItems: false,
@@ -94,139 +119,218 @@ const about: About = {
     display: true,
   },
   calendar: {
-    display: true,
+    // If you have a Cal.com link, add it here. Otherwise set display to false.
+    display: false,
     link: "https://cal.com",
   },
   intro: {
     display: true,
     title: "Introduction",
     description: (
-      <>
-        Selene is a Jakarta-based design engineer with a passion for transforming complex challenges
-        into simple, elegant design solutions. Her work spans digital interfaces, interactive
-        experiences, and the convergence of design and technology.
-      </>
+    <>
+      I build technology-driven solutions at the intersection of strategy, product, and AI. At Deloitte, I worked with cross-functional teams to redesign customer journeys and deliver generative AI and RAG-based tools that automated manual analysis, surfaced market insights, and improved decision-making.
+      <br />
+      <br />
+      Outside of my work, I have a strong passion for photography and enjoy documenting striking places and people through visual storytelling. A glimpse of this work can be found in the photography section.
+    </>
     ),
   },
   work: {
-    display: true, // set to false to hide this section
+    display: true,
     title: "Work Experience",
     experiences: [
       {
-        company: "FLY",
-        timeframe: "2022 - Present",
-        role: "Senior Design Engineer",
+        company: "Deloitte Consulting",
+        timeframe: "Aug 2023 – Mar 2025",
+        role: "Analyst, Customer Strategy & Design",
         achievements: [
-          <>
-            Redesigned the UI/UX for the FLY platform, resulting in a 20% increase in user
-            engagement and 30% faster load times.
-          </>,
-          <>
-            Spearheaded the integration of AI tools into design workflows, enabling designers to
-            iterate 50% faster.
-          </>,
+          "Built and shipped GenAI and RAG-based chatbot systems using Qdrant, GCP SQL, and Vertex AI, automating manual analyst workflows and improving document Q&A accuracy.",
+          "Drove product strategy, UX improvements, and feature delivery through customer research, competitive analysis, and cross-functional execution, increasing customer satisfaction, engagement, and acquisitions.",
+          "Partnered with cross-functional product, design, and engineering teams to deliver revenue-impacting chatbot features, including automated supplementary card requests.",
         ],
         images: [
-          // optional: leave the array empty if you don't want to display images
           {
-            src: "/images/projects/project-01/cover-01.jpg",
-            alt: "Once UI Project",
+            src: "/images/deloitte/image01.jpeg",
+            alt: "Image 01",
+            width: 16,
+            height: 9,
+          },
+          {
+            src: "/images/deloitte/image02.jpeg",
+            alt: "RAG document ingestion and Q&A workflow",
+            width: 16,
+            height: 9,
+          },
+          {
+            src: "/images/deloitte/image03.jpeg",
+            alt: "RAG document ingestion and Q&A workflow",
+            width: 16,
+            height: 14,
+          },
+        ],
+      },
+      {
+        company: "Freshnest",
+        timeframe: "Jun 2022 – Aug 2022",
+        role: "Associate Consultant Intern",
+        achievements: [
+          "Led operational analysis initiatives to uncover inefficiencies in facility workflows, driving meaningful improvements in productivity and yield optimization.",
+          "Conducted market research and built partnerships to expand reach and strengthen brand presence.",
+        ],
+        images: [
+          {
+            src: "/images/freshnest/image01",
+            alt: "Image 01",
+            width: 16,
+            height: 9,
+          },
+          {
+            src: "/images/freshnest/image02.jpg",
+            alt: "RAG document ingestion and Q&A workflow",
             width: 16,
             height: 9,
           },
         ],
       },
+    ],
+  },
+  studies: {
+  display: true,
+  title: "Education",
+  institutions: [
+    {
+      name: "Cornell University",
+      description: (
+        <>
+          <strong>Master’s in Engineering Management (Aug 2025 – Present)</strong> 
+          <br />
+          Coursework: Data Analytics, Decision Framing & Analytics, Project
+          Management, Negotiations & Contracts, and Data Driven Marketing.
+          <br />
+          <em>GPA: 3.96 / 4</em>
+        </>
+      ),
+    },
+    {
+      name: "Delhi Technological University",
+      description: (
+        <>
+          <strong>Bachelor's in Technology in Computer Science (Jul 2019 – May 2023)</strong> 
+          <br />
+          Coursework: Artificial Intelligence, Algorithm Design & Analysis, Data Structures, Database Management Systems, Software Engineering.
+          <br />
+          <em>Cumulative GPA: 3.65 / 4 · Major GPA: 3.88 / 4</em>
+        </>
+      ),
+    },
+  ],
+},
+  // studies: {
+  //   display: true,
+  //   title: "Education",
+  //   institutions: [
+  //     {
+  //       name: "Cornell University",
+  //       description: (
+  //         <>
+  //           Master’s in Engineering Management (Aug 2025 – Present). Coursework includes
+  //           Data Analytics, Decision Framing & Analytics, Project Management, Negotiations
+  //           & Contracts, and Data Driven Marketing.
+  //           <br />
+  //           <em>GPA: 3.96 / 4</em>
+  //         </>
+  //       ),
+  //     },
+  //     {
+  //       name: "Delhi Technological University",
+  //       description: (
+  //         <>
+  //           B.Tech in Computer Science (Jul 2019 – May 2023).
+  //           <br />
+  //           <em>Cumulative GPA: 3.65 / 4 · Major GPA: 3.88 / 4</em>
+  //         </>
+  //       ),
+  //     },
+  //   ],
+  // },
+  technical: {
+    display: true,
+    title: "Technical skills",
+    skills: [
       {
-        company: "Creativ3",
-        timeframe: "2018 - 2022",
-        role: "Lead Designer",
-        achievements: [
-          <>
-            Developed a design system that unified the brand across multiple platforms, improving
-            design consistency by 40%.
-          </>,
-          <>
-            Led a cross-functional team to launch a new product line, contributing to a 15% increase
-            in overall company revenue.
-          </>,
+        title: "GenAI and RAG Systems",
+        description: "Building retrieval-augmented generation systems using vector databases, structured prompting, and cloud data stores for high-accuracy Q&A and automation.",
+        tags: [
+          { name: "RAG", icon: "sparkles" },
+          { name: "Qdrant", icon: "database" },
+          { name: "OpenAI API", icon: "sparkles" },
+          { name: "Vertex AI", icon: "google" },
+        ],
+        images: [],
+      },
+      {
+        title: "Automation Workflows",
+        description: "Designing practical automations in n8n, integrating Google Calendar, Airtable, email, and GPT to reduce manual effort and improve task readiness.",
+        tags: [
+          { name: "n8n", icon: "workflow" },
+          { name: "Airtable", icon: "table" },
+          { name: "Google Calendar", icon: "calendar" },
+        ],
+        images: [],
+      },
+      {
+        title: "Data and Programming",
+        description: "Strong foundations in Python, SQL, and analytics. Comfortable with dashboards and data workflows across spreadsheets and cloud platforms.",
+        tags: [
+          { name: "Python", icon: "python" },
+          { name: "SQL", icon: "database" },
+          { name: "Excel", icon: "excel" },
+          { name: "GCP", icon: "google" },
         ],
         images: [],
       },
     ],
   },
-  studies: {
-    display: true, // set to false to hide this section
-    title: "Studies",
-    institutions: [
+  miscellaneous: {
+    display: true,
+    title: "Miscellaneous",
+    sections: [
       {
-        name: "University of Jakarta",
-        description: <>Studied software engineering.</>,
-      },
-      {
-        name: "Build the Future",
-        description: <>Studied online marketing and personal branding.</>,
-      },
-    ],
-  },
-  technical: {
-    display: true, // set to false to hide this section
-    title: "Technical skills",
-    skills: [
-      {
-        title: "Figma",
-        description: (
-          <>Able to prototype in Figma with Once UI with unnatural speed.</>
-        ),
-        tags: [
+        title: "Interests",
+        items: [
+          "Motorsports",
+          "Soccer",
+          "Running",
+          "Poker",
           {
-            name: "Figma",
-            icon: "figma",
+            label: "Photography",
+            href: "/gallery", // replace with real link
+            newTab: false,
           },
-        ],
-        // optional: leave the array empty if you don't want to display images
-        images: [
-          {
-            src: "/images/projects/project-01/cover-02.jpg",
-            alt: "Project image",
-            width: 16,
-            height: 9,
-          },
-          {
-            src: "/images/projects/project-01/cover-03.jpg",
-            alt: "Project image",
-            width: 16,
-            height: 9,
-          },
+          "Chess",
         ],
       },
+      // {
+      //   title: "Active roles",
+      //   items: [
+      //     "President @ Duke Vibe Coding Club",
+      //     "Adobe Student Ambassador",
+      //     "Perplexity Campus Partner",
+      //   ],
+      // },
       {
-        title: "Next.js",
-        description: (
-          <>Building next gen apps with Next.js + Once UI + Supabase.</>
-        ),
-        tags: [
+        title: "Publications",
+        items: [
           {
-            name: "JavaScript",
-            icon: "javascript",
+            label: "Assessing the Efficacy of Different BERT Variants for Distinguishing Types of Cyberbullying on Twitter",
+            href: "https://link.springer.com/chapter/10.1007/978-981-99-6550-2_40", // replace with real link
           },
           {
-            name: "Next.js",
-            icon: "nextjs",
-          },
-          {
-            name: "Supabase",
-            icon: "supabase",
+            label: "Impact of Blockchain Technology in the Healthcare Systems",
+            href: "https://link.springer.com/chapter/10.1007/978-981-16-7610-9_53", // replace with real link
           },
         ],
-        // optional: leave the array empty if you don't want to display images
-        images: [
-          {
-            src: "/images/projects/project-01/cover-04.jpg",
-            alt: "Project image",
-            width: 16,
-            height: 9,
-          },
-        ],
+        
       },
     ],
   },
@@ -235,69 +339,34 @@ const about: About = {
 const blog: Blog = {
   path: "/blog",
   label: "Blog",
-  title: "Writing about design and tech...",
-  description: `Read what ${person.name} has been up to recently`,
-  // Create new blog posts by adding a new .mdx file to app/blog/posts
-  // All posts will be listed on the /blog route
+  title: "Writing about GenAI, automation, and product strategy",
+  description: `Read what ${person.name} has been building and learning`,
+  // Add posts by creating .mdx files in src/app/blog/posts
 };
 
 const work: Work = {
   path: "/work",
-  label: "Work",
+  label: "Projects",
   title: `Projects – ${person.name}`,
-  description: `Design and dev projects by ${person.name}`,
-  // Create new project pages by adding a new .mdx file to app/blog/posts
-  // All projects will be listed on the /home and /work routes
+  description: `Selected GenAI and automation projects by ${person.name}`,
+  // Add projects by creating .mdx files in src/app/work/projects
 };
 
 const gallery: Gallery = {
   path: "/gallery",
-  label: "Gallery",
-  title: `Photo gallery – ${person.name}`,
-  description: `A photo collection by ${person.name}`,
-  // Images by https://lorant.one
-  // These are placeholder images, replace with your own
+  label: "Photography",
+  title: `Photography – ${person.name}`,
+  description: `Photography by ${person.name}`,
+
   images: [
-    {
-      src: "/images/gallery/horizontal-1.jpg",
-      alt: "image",
-      orientation: "horizontal",
-    },
-    {
-      src: "/images/gallery/vertical-4.jpg",
-      alt: "image",
-      orientation: "vertical",
-    },
-    {
-      src: "/images/gallery/horizontal-3.jpg",
-      alt: "image",
-      orientation: "horizontal",
-    },
-    {
-      src: "/images/gallery/vertical-1.jpg",
-      alt: "image",
-      orientation: "vertical",
-    },
-    {
-      src: "/images/gallery/vertical-2.jpg",
-      alt: "image",
-      orientation: "vertical",
-    },
-    {
-      src: "/images/gallery/horizontal-2.jpg",
-      alt: "image",
-      orientation: "horizontal",
-    },
-    {
-      src: "/images/gallery/horizontal-4.jpg",
-      alt: "image",
-      orientation: "horizontal",
-    },
-    {
-      src: "/images/gallery/vertical-3.jpg",
-      alt: "image",
-      orientation: "vertical",
-    },
+    { src: "/images/gallery/horizontal1.jpg", alt: "image", orientation: "horizontal" },
+    { src: "/images/gallery/vertical1.jpg", alt: "image", orientation: "vertical" },
+    { src: "/images/gallery/horizontal3.jpg", alt: "image", orientation: "horizontal" },
+    { src: "/images/gallery/vertical4.jpg", alt: "image", orientation: "vertical" },
+    { src: "/images/gallery/vertical2.jpg", alt: "image", orientation: "vertical" },
+    { src: "/images/gallery/horizontal2.jpg", alt: "image", orientation: "horizontal" },
+    { src: "/images/gallery/horizontal4.jpg", alt: "image", orientation: "horizontal" },
+    { src: "/images/gallery/vertical3.jpg", alt: "image", orientation: "vertical" },
   ],
 };
 

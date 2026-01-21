@@ -1,0 +1,76 @@
+---
+title: "Invoice Generator Automation (PDF + Email + Storage)"
+publishedAt: "2025-07-24"
+summary: "An end-to-end invoice automation workflow that generates branded PDFs via PDFMonkey, emails invoices via Gmail SMTP, and stores records in Airtable and Google Drive for easy tracking."
+team:
+  - name: "Ashwin Prajeeth"
+    role: "Engineering Management Graduate Student"
+    avatar: "/images/Ash.jpeg"
+    linkedIn: "https://www.linkedin.com/in/ashwinprajeeth/"
+---
+
+### Demo
+
+[**Invoice Generator Automation**](https://www.linkedin.com/posts/ashwinprajeeth_agenticai-aiworkflow-automationtools-activity-7354429727853498371-LvS8)
+
+## Overview
+
+This project automates invoice creation and delivery for freelancers and small teams. Instead of manually formatting invoices, exporting PDFs, and sending emails, the workflow generates a branded invoice PDF from structured data, emails it to the client, and logs everything in a tracker for follow-up and bookkeeping.
+
+## Problem
+
+Manual invoicing is repetitive and error-prone:
+
+- Copying values into templates leads to mistakes
+- PDFs are generated inconsistently across clients
+- Tracking sent, paid, and overdue invoices becomes messy
+- Follow-ups are often missed
+
+## Solution
+
+A workflow that turns structured invoice inputs into a complete invoice lifecycle:
+
+- Collect invoice fields (client, line items, taxes, due date)
+- Generate a PDF invoice using PDFMonkey
+- Send the invoice automatically via Gmail SMTP
+- Store the PDF + metadata in Airtable
+- Optionally store files in Google Drive for centralized access
+
+## Architecture
+
+**Flow**
+
+1. Trigger: new invoice request (Form / Airtable / webhook)
+2. Validate + normalize invoice data (totals, currency, taxes)
+3. PDF generation (PDFMonkey template) → returns PDF URL
+4. Email delivery (Gmail SMTP) with PDF attached or linked
+5. Storage:
+   - Airtable record (status, invoice number, client, due date)
+   - Attachment stored via public URL
+   - Optional Google Drive upload + link saved back to Airtable
+
+**Key design choices**
+
+- Template-driven PDF generation for consistent branding
+- Central tracking table so you always know invoice status
+- Modular design so it can be reused for payment reminders
+
+## Tech Stack
+
+- n8n (workflow orchestration)
+- PDFMonkey (PDF generation template)
+- Gmail SMTP (invoice delivery)
+- Airtable (invoice tracker)
+- Google Drive (optional storage)
+
+## Results
+
+- Faster invoice turnaround (generate + send in minutes)
+- Fewer manual errors through structured inputs
+- Clear tracking of invoices (sent, paid, overdue) in one place
+
+## What’s next
+
+- Overdue payment reminder automation
+- Payment status updates via Stripe/PayPal webhooks
+- Lightweight client portal or frontend UI
