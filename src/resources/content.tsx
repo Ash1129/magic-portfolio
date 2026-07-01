@@ -72,11 +72,11 @@ const home: Home = {
             <strong className="ml-4">Featured</strong>
             <Line background="brand-alpha-strong" vert height="20" />
             <Text marginRight="4" onBackground="brand-medium">
-              Cornell Personal Assistant
+              Policy-to-Rules Engine
             </Text>
           </Row>
         ),
-        href: "/work/cornell-personal-assistant",
+        href: "/work/cotiviti-policy-to-rules",
       },
       {
         title: (
@@ -84,14 +84,14 @@ const home: Home = {
             <strong className="ml-4">Featured</strong>
             <Line background="accent-alpha-strong" vert height="20" />
             <Text marginRight="4" onBackground="accent-medium">
-              Travel GPT
+              Cornell Personal Assistant
             </Text>
           </Row>
         ),
-        href: "/work/koreai-travel-agent-gpt",
+        href: "/work/cornell-personal-assistant",
       },
     ],
-    href: "/work/cornell-personal-assistant",
+    href: "/work/cotiviti-policy-to-rules",
     title: undefined
   },
   subline: (

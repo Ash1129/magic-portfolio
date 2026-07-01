@@ -1,0 +1,76 @@
+---
+title: "SEG Proposal Engine (Multi-Agent GenAI Sales Tool)"
+publishedAt: "2026-05-01"
+summary: "An internal AI sales tool for a commercial energy consultancy that deploys a multi-agent pipeline to research real energy-market data and generate a fully customized savings proposal in under 60 seconds."
+images:
+  - "/images/projects/seg/cover-01.png"
+  - "/images/projects/seg/cover-02.png"
+team:
+  - name: "Ashwin Prajeeth"
+    role: "Engineering Management Graduate Student"
+    avatar: "/images/Ash.jpeg"
+    linkedIn: "https://www.linkedin.com/in/ashwinprajeeth/"
+---
+
+## Overview
+
+The SEG Proposal Engine is an internal AI-powered sales tool for **Sunlight Energy Group (SEG)**, a commercial energy management consultancy. Given a prospect's company details — or a photo of their utility bill — the system runs a multi-agent pipeline that researches real energy-market data and generates a fully customized savings proposal in under 60 seconds.
+
+## Problem
+
+Energy consultants spend hours per prospect manually researching state electricity rates, solar incentives, and compliance requirements before hand-assembling a savings proposal. The process is slow, inconsistent, and hard to scale across a sales team.
+
+## Solution
+
+A four-phase, multi-agent pipeline that turns a prospect profile into an adjudicated, financially-modeled proposal — plus a ready-to-send client email:
+
+- **Bill intake:** GPT-4o vision extracts spend, usage, and location straight from an uploaded utility bill
+- **Grounded research:** every run is anchored to real EIA electricity rates and NREL PVWatts solar data, not model guesses
+- **Isolated specialists:** parallel agents cover usage reduction, procurement, alternative generation, and compliance
+- **Synthesis + financials:** a final analysis layer produces a five-year savings projection with paybacks
+- **Real-time UX:** agent status streams to the frontend live via Server-Sent Events
+
+## Architecture: Multi-Agent Pipeline
+
+The orchestrator runs agents across four sequential phases:
+
+**Phase 1 — Research (serial, blocking).** Fetches the real commercial electricity rate for the prospect's state from a 50-state EIA 2024 table (with live EIA API fallback), queries a RAG store for the top-3 most similar past proposals by cosine similarity, and produces a structured research brief that every downstream agent shares.
+
+**Phase 2 — Specialist Agents (parallel).** Four agents run concurrently, each receiving the research brief but operating in isolation so bias can't propagate between them:
+
+| Agent | Output |
+|---|---|
+| Usage Reduction | 3–4 conservation measures |
+| Procurement | Savings %, annual savings, payback months |
+| Alternative Generation | Solar + DER recs, grounded in real NREL PVWatts data |
+| Compliance | Incentives, regulations, IRA tax credits |
+
+Each recommendation is a structured item with a confidence score and a source.
+
+**Phase 3 — Financial Analysis (serial).** The only agent with visibility into all specialist outputs, acting as a synthesis layer — it produces a baseline, a savings breakdown by category, blended payback, and a five-year cumulative projection.
+
+**Phase 4 — Email Drafting (serial).** Generates a personalized subject and body ready for the consultant to send.
+
+**Fault tolerance.** Every agent is wrapped in a `safeRun()` guard — if one fails or times out, the orchestrator logs it, emits an error event to the UI, and substitutes a sensible default so the pipeline always completes.
+
+## Tech Stack
+
+- **Frontend:** React 18 + Vite + Tailwind CSS
+- **Backend:** Express (ESM), Server-Sent Events for live agent status
+- **AI:** OpenAI SDK — GPT-5.5 for complex agents, GPT-4o-mini for specialists, GPT-4o vision for bill extraction, `text-embedding-3-small` for RAG
+- **Database:** SQLite (`better-sqlite3`) for proposals and RAG embeddings
+- **Email:** Nodemailer over SMTP
+- **Grounding data:** EIA state electricity rates, NREL PVWatts solar production
+
+## Key Design Decisions
+
+- **Specialist agents are isolated** — they read only the shared research brief, never each other's outputs, preventing bias propagation.
+- **Financial analysis runs last** as the single synthesis layer with full visibility.
+- **RAG is fire-and-forget** — indexing and retrieval failures are swallowed so proposal generation always degrades gracefully.
+- **SSE streaming** keeps the sales rep informed as each agent completes, rather than staring at a spinner.
+
+## Results
+
+- Generates a complete, grounded savings proposal in under 60 seconds
+- Every recommendation is traceable to a confidence score and a real data source
+- Scales consistent proposal quality across an entire sales team

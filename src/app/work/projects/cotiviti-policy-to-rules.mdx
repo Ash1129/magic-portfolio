@@ -1,0 +1,68 @@
+---
+title: "Policy-to-Rules Engine (Healthcare Payment Integrity)"
+publishedAt: "2026-06-27"
+summary: "A two-agent LLM pipeline that converts written payer medical policy into machine-readable claim-editing rules, then adjudicates claims against them with an approve/deny decision traced back to the source policy line."
+images:
+  - "/images/projects/cotiviti/cover-01.png"
+  - "/images/projects/cotiviti/cover-02.png"
+  - "/images/projects/cotiviti/cover-03.png"
+  - "/images/projects/cotiviti/cover-04.png"
+  - "/images/projects/cotiviti/cover-05.png"
+team:
+  - name: "Ashwin Prajeeth"
+    role: "Engineering Management Graduate Student"
+    avatar: "/images/Ash.jpeg"
+    linkedIn: "https://www.linkedin.com/in/ashwinprajeeth/"
+---
+
+## Overview
+
+A proof of concept built for a healthcare payment-integrity assessment. It takes a written payer medical policy (prose) and converts it into structured, machine-readable claim-editing rules using an LLM, then runs sample claims against those rules and returns approve/deny decisions — each with a reason tied back to the source policy.
+
+This maps directly to how payment-integrity products convert written clinical and payment policy into executable claim edits.
+
+## Problem
+
+Payers write coverage and payment policy in English. Turning that prose into executable claim edits is manual, slow, and error-prone — and when a claim is denied, the reasoning often isn't traceable back to the specific policy language that drove it.
+
+## Solution
+
+A deliberately simple **two-agent pipeline** that demonstrates the core payment-policy-management loop end to end:
+
+- **Extraction agent** reads a written policy and emits a structured rules JSON object against a defined schema
+- **Validation agent** takes those extracted rules plus a single claim and returns a decision — APPROVE or DENY — with the matched rule and a source-policy reference
+
+The two-agent split shows an agentic design without unnecessary complexity: no database, no auth, no extra services. Every decision is traceable to a source line.
+
+## Architecture
+
+**Flow**
+
+1. Written policy (prose) → Extraction agent → structured rules JSON
+2. Rules JSON + one claim → Validation agent → `{ decision, matched_rule, policy_reference }`
+3. UI renders each claim as an APPROVE / DENY card with the reason and the policy line it maps to
+
+**Design choices**
+
+- **Robust JSON handling** — both agents are instructed to return raw JSON only; the pipeline still defensively strips code fences and wraps parsing in try/catch
+- **Traceability first** — every adjudication points back to the exact rule and source policy reference
+- **Screenshare-optimized UI** — a clean three-column layout (raw policy → extracted rules → claim results) built for a live demo
+
+## Tech Stack
+
+- **Backend:** Node.js + Express (thin API layer)
+- **AI:** OpenAI SDK with a structured extraction prompt + schema and a separate validation prompt
+- **Frontend:** Plain HTML + vanilla JS single page — three columns, no build step
+- **Config:** API key from `.env`, never hardcoded (only `.env.example` committed)
+
+## Demo Walkthrough
+
+1. Show the prose policy on the left — payers write coverage policy in English
+2. Click **Extract** — an LLM agent converts prose into machine-readable claim edits
+3. Click **Run all claims** — walk through the results: a clean approve, denials on diagnosis / frequency / wrong CPT, and an approve under a malabsorption exception
+
+## Results
+
+- Demonstrates the first principle behind automated payment policy management: written policy → executable rules → adjudicated claims
+- Every decision is traceable to a source policy line
+- Delivered with a written report and presentation alongside the working demo
