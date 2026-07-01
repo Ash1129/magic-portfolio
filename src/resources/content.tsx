@@ -41,7 +41,7 @@ const social: Social = [
   },
   {
     name: "📄 Resume",
-    icon: "fileText",
+    icon: "document",
     link: "/resume.pdf",
     essential: true,
   },

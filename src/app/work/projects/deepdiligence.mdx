@@ -1,0 +1,87 @@
+---
+title: "DeepDiligence (Multi-Agent Investment Research)"
+publishedAt: "2026-06-29"
+summary: "A multi-agent AI system for investment due diligence — five specialist agents run in parallel, a synthesis agent reconciles their findings into a cited investment memo, and a portfolio builder allocates capital from AI ratings with live prices and S&P 500 benchmarking."
+images:
+  - "/images/projects/deepdiligence/cover-01.jpg"
+team:
+  - name: "Ashwin Prajeeth"
+    role: "Engineering Management Graduate Student"
+    avatar: "/images/Ash.jpeg"
+    linkedIn: "https://www.linkedin.com/in/ashwinprajeeth/"
+---
+
+## Overview
+
+DeepDiligence is a multi-agent AI system for investment due diligence, built as the final project for Cornell's ENMGT5400. A user enters a company name; five specialist agents run in parallel; a synthesis agent reconciles their findings; and the result is a structured investment memo with source citations, confidence scores, and conflict detection.
+
+On top of the single-company analysis, it also produces weekly stock rankings across a 95-stock universe and a portfolio builder that allocates capital based on AI ratings, with live prices and S&P 500 benchmarking. This is v1.0 — complete and deployed.
+
+## Problem
+
+Investment due diligence means pulling together financials, competitive positioning, team signals, risk factors, and market data from dozens of scattered sources — then reconciling them into a defensible recommendation. It's slow, inconsistent, and hard to audit: when a conclusion is wrong, it's rarely clear which underlying claim drove it.
+
+## Solution
+
+A router/aggregator pipeline that fans a request out to five isolated specialist agents and reconciles their structured outputs into an auditable memo:
+
+- **Parallel specialists** — financial, team/culture, market/competitive, risk/sentiment, and a quantitative ML agent run concurrently
+- **Isolation by design** — agents cannot talk to each other; each returns a typed sub-report
+- **Reconciliation** — a synthesis agent sees only the structured sub-reports (never raw documents), detects contradictions, and scores confidence
+- **Traceability** — every claim in the final memo carries at least one source id
+- **Beyond one company** — weekly BUY/HOLD/SELL rankings across 95 stocks, plus an AI-rated portfolio builder benchmarked to the S&P 500
+
+## Architecture: Router / Aggregator
+
+An orchestrator dispatches five agents concurrently (`ThreadPoolExecutor`, 5 workers), then gates a synthesis step:
+
+- **Financial Analyst** → SEC EDGAR filings, investor-relations pages
+- **Team & Culture** → job postings, leadership signals
+- **Market & Competitive** → competitors, TAM, positioning
+- **Risk & Sentiment** → news sentiment, litigation, macro flags
+- **Quantitative Momentum** → Random Forest ML on 3yr OHLCV + 14 technical indicators
+
+Each agent returns a typed `AgentSubReport`. The Synthesis Agent merges those into a Pydantic `InvestmentMemo` — six sections, per-claim source ids, and an overall confidence score. Because agents are fully isolated and synthesis only ever sees structured reports, bias can't propagate and every output stays auditable.
+
+## The Quantitative Agent
+
+Unlike the four LLM tool-calling agents, the quant agent is pure ML:
+
+- Downloads 3 years of OHLCV via yfinance, then engineers 14 features — RSI, MACD, Bollinger position, MA20/50/200 crossovers, multi-window momentum, ATR, and volume z-score
+- Trains a `RandomForestClassifier` (300 trees, depth 6, balanced classes) on an 80/20 **time-ordered** split — no shuffling, to prevent look-ahead bias
+- Calibrates confidence conservatively (caps reported confidence at 0.75) and returns a zero-confidence stub for private companies with no ticker
+
+## Portfolio Builder
+
+Allocates capital from the latest weekly report:
+
+```
+raw_weight = suggested_weight_pct × rating_boost × confidence
+# STRONG BUY = 1.5×, BUY = 1.0×
+```
+
+Weights are then capped and iteratively re-normalized (excess redistributed from capped positions), live prices are fetched per request via yfinance, and results are benchmarked against the S&P 500 across 1W/1M/3M/YTD.
+
+## Tech Stack
+
+- **Backend:** Python 3.11, FastAPI + uvicorn, Server-Sent Events for real-time agent progress
+- **LLM:** Anthropic Claude API (`claude-sonnet-4-20250514`)
+- **ML:** scikit-learn `RandomForestClassifier`, numpy
+- **Data:** yfinance, SEC EDGAR, NewsAPI, BeautifulSoup scraping
+- **Frontend:** React + TypeScript, TanStack Router, Tailwind CSS
+- **Contracts:** Pydantic models for every inter-agent boundary
+- **Caching:** disk-based, SHA256-keyed JSON per agent per company
+
+## Results
+
+- Full five-agent memo generated per company, every claim traceable to a source
+- Weekly rankings across a curated 95-stock universe with BUY/HOLD/SELL ratings
+- AI-rated portfolio construction benchmarked live against the S&P 500
+- 54 unit tests; complete and deployed as v1.0
+
+## What's Next
+
+- RAG faithfulness verifier (ChromaDB is in the stack, not yet wired up)
+- Cross-week memory so past memos persist in a vector store
+- Post-memo Q&A interface
+- Universe expansion beyond 95 stocks
