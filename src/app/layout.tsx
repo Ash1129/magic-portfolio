@@ -3,6 +3,7 @@ import "@/styles/classical.css";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Lora } from "next/font/google";
+import { InPageNavigation } from "@/components/InPageNavigation";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { baseURL, person } from "@/resources";
@@ -63,6 +64,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <SiteHeader />
         <main id="main">{children}</main>
         <SiteFooter />
+        <InPageNavigation />
         <Analytics />
       </body>
     </html>
