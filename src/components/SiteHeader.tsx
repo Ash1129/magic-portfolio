@@ -7,6 +7,18 @@ import { person } from "@/resources";
 
 type Theme = "light" | "dark";
 
+// Must match the key read by the inline theme script in layout.tsx.
+const STORAGE_KEY = "theme-choice";
+
+function readChoice(): Theme | null {
+  try {
+    const value = localStorage.getItem(STORAGE_KEY);
+    return value === "dark" || value === "light" ? value : null;
+  } catch {
+    return null;
+  }
+}
+
 const links = [
   { href: "/#work", label: "Work" },
   { href: "/#projects", label: "Projects" },
@@ -51,9 +63,20 @@ export function SiteHeader() {
   const [theme, setTheme] = useState<Theme>("light");
   const pathname = usePathname();
 
-  // The inline script in layout.tsx applies the saved theme before paint; sync to it.
+  // The inline script in layout.tsx applies the theme before paint; sync to it,
+  // then keep following the system setting until the visitor picks one.
   useEffect(() => {
     setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
+
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const onSystemChange = () => {
+      if (readChoice()) return;
+      const system: Theme = media.matches ? "dark" : "light";
+      document.documentElement.dataset.theme = system;
+      setTheme(system);
+    };
+    media.addEventListener("change", onSystemChange);
+    return () => media.removeEventListener("change", onSystemChange);
   }, []);
 
   // Collapse the header while scrolling down; bring it back on any scroll up.
@@ -90,8 +113,12 @@ export function SiteHeader() {
     const next: Theme = theme === "dark" ? "light" : "dark";
     document.documentElement.dataset.theme = next;
     setTheme(next);
+    // Picking the system's own theme clears the override, so the site goes back
+    // to following the system; picking the other one remembers it.
+    const system: Theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     try {
-      localStorage.setItem("theme", next);
+      if (next === system) localStorage.removeItem(STORAGE_KEY);
+      else localStorage.setItem(STORAGE_KEY, next);
     } catch {
       // Storage can be unavailable (private mode); the toggle still works for this visit.
     }

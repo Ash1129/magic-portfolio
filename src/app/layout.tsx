@@ -23,8 +23,9 @@ const lora = Lora({
   display: "swap",
 });
 
-// Applies a saved dark/light choice before first paint so the page never flashes.
-const themeScript = `try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.dataset.theme=t}catch(e){}`;
+// Sets the theme before first paint so the page never flashes: the visitor's
+// explicit choice if they made one, otherwise the system light/dark setting.
+const themeScript = `(function(){var t;try{t=localStorage.getItem("theme-choice")}catch(e){}if(t!=="dark"&&t!=="light")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t})()`;
 
 const description =
   "Product strategist who turns ambiguous business problems into AI products people actually use. Engineering Management at Cornell.";
