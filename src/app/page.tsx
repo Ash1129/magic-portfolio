@@ -111,7 +111,14 @@ export default function Home() {
               <li key={step.title} className="step">
                 <span className="numeral step__n">{pad(i + 1)}</span>
                 <h3 className="step__title">{step.title}</h3>
-                <p className="step__text justify">{step.body}</p>
+                <div className="step__text">
+                  {/* One sentence per line. */}
+                  {step.body.split(/(?<=\.)\s+/).map((sentence) => (
+                    <p key={sentence} className="justify">
+                      {sentence}
+                    </p>
+                  ))}
+                </div>
               </li>
             ))}
           </ol>

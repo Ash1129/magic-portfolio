@@ -799,6 +799,10 @@ figure {
   line-height: 1.7;
 }
 
+.step__text p + p {
+  margin-top: var(--space-2);
+}
+
 /* ── Contact ──────────────────────────────────────────────────────────── */
 
 .contact-card {
