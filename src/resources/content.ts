@@ -23,7 +23,6 @@ export const person = {
   firstName: "Ashwin",
   role: "Product Strategy · AI · Consulting",
   email: "ap2538@cornell.edu",
-  phone: "607 697 5263",
   location: "Ithaca, NY",
   linkedin: "https://www.linkedin.com/in/ashwinprajeeth/",
   github: "https://github.com/Ash1129",

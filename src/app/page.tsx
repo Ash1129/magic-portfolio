@@ -172,9 +172,6 @@ export default function Home() {
                 <a href={`mailto:${person.email}`} className="btn btn--primary">
                   Get in touch
                 </a>
-                <a href={`tel:${person.phone.replace(/\s/g, "")}`} className="btn">
-                  {person.phone}
-                </a>
               </div>
             </div>
           </div>
