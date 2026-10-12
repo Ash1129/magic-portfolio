@@ -56,6 +56,27 @@ export function SiteHeader() {
     setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
   }, []);
 
+  // Collapse the header while scrolling down; bring it back on any scroll up.
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let frame = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const y = window.scrollY;
+        if (Math.abs(y - lastY) < 6) return;
+        setHidden(y > lastY && y > 80);
+        lastY = y;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
+
   // Close the mobile menu after navigating or on Escape.
   useEffect(() => setOpen(false), [pathname]);
   useEffect(() => {
@@ -79,7 +100,7 @@ export function SiteHeader() {
   const close = () => setOpen(false);
 
   return (
-    <header className="site-header">
+    <header className={`site-header${hidden && !open ? " site-header--hidden" : ""}`}>
       <div className="site-header__inner">
         <Link href="/" className="brand">
           {person.name}

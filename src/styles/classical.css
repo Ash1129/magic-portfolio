@@ -70,7 +70,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 88px; /* clears the sticky header on anchor jumps */
+  scroll-padding-top: 72px; /* clears the sticky header on anchor jumps */
 }
 
 body {
@@ -351,6 +351,12 @@ figure {
   top: 0;
   z-index: 10;
   background: var(--color-bg);
+  transition: transform 0.25s ease;
+}
+
+/* Collapsed while scrolling down; keyboard focus always brings it back. */
+.site-header--hidden:not(:focus-within) {
+  transform: translateY(-100%);
 }
 
 /* Hairline under the header, inset to the page margins. */
@@ -369,15 +375,15 @@ figure {
 .site-header__inner {
   display: flex;
   align-items: center;
-  gap: 28px;
-  padding: 18px var(--gutter);
+  gap: 24px;
+  padding: 10px var(--gutter);
 }
 
 .brand {
   margin-right: auto;
   font-family: var(--font-heading);
   font-weight: var(--font-heading-weight);
-  font-size: 22px;
+  font-size: 20px;
   white-space: nowrap;
   color: var(--color-text);
   text-decoration: none;
@@ -396,13 +402,13 @@ figure {
 .menu-toggle {
   font-family: var(--font-heading);
   font-weight: var(--font-heading-weight);
-  font-size: 16px;
+  font-size: 15px;
 }
 
 .site-nav {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 24px;
 }
 
 .site-nav a:not(.btn-solid) {
@@ -421,14 +427,14 @@ figure {
 .header-tools {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 20px;
 }
 
 .btn-solid {
   display: inline-flex;
   align-items: center;
-  padding: 12px 22px;
-  border-radius: 6px;
+  padding: 8px 16px;
+  border-radius: 5px;
   background: var(--color-text);
   color: var(--color-bg);
   text-decoration: none;
@@ -443,15 +449,16 @@ figure {
 
 .header-divider {
   width: 1px;
-  height: 48px;
+  height: 28px;
   background: var(--color-text);
 }
 
 .icon-circle {
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 36px;
+  font-size: 13px;
   border: 1px solid var(--color-text);
   border-radius: 50%;
   color: var(--color-text);
@@ -467,8 +474,8 @@ figure {
 
 .theme-switch {
   position: relative;
-  width: 80px;
-  height: 48px;
+  width: 60px;
+  height: 36px;
   padding: 0;
   border: 1px solid var(--color-text);
   border-radius: 999px;
@@ -485,19 +492,19 @@ figure {
 .theme-switch__icon {
   position: absolute;
   top: 50%;
-  left: 18px;
+  left: 12px;
   display: grid;
   transform: translateY(-50%);
   transition: left 0.2s ease;
 }
 
 .theme-switch--dark .theme-switch__icon {
-  left: calc(100% - 18px - 15px);
+  left: calc(100% - 12px - 15px);
 }
 
 .menu-toggle {
   display: none;
-  padding: 10px 16px;
+  padding: 6px 14px;
   color: var(--color-text);
   background: transparent;
   border: 1px solid var(--color-text);
@@ -556,6 +563,7 @@ figure {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .site-header,
   .theme-switch__icon {
     transition: none;
   }
