@@ -354,9 +354,14 @@ figure {
   transition: transform 0.25s ease;
 }
 
-/* Collapsed while scrolling down; keyboard focus always brings it back. */
-.site-header--hidden:not(:focus-within) {
+/* Collapsed while scrolling down. Keyboard focus brings it back, but focus
+   left behind by a mouse click (e.g. on the theme toggle) does not. */
+.site-header--hidden {
   transform: translateY(-100%);
+}
+
+.site-header--hidden:has(:focus-visible) {
+  transform: none;
 }
 
 /* Hairline under the header, inset to the page margins. */
