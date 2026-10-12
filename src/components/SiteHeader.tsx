@@ -43,6 +43,17 @@ function MoonIcon() {
   );
 }
 
+// The LinkedIn "in" mark, drawn inline (Simple Icons no longer carries LinkedIn).
+function LinkedInIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <circle cx="5" cy="4.6" r="2.3" />
+      <rect x="2.9" y="8.6" width="4.2" height="12.4" rx="0.4" />
+      <path d="M9.6 8.6h4v1.8c.6-1.1 2.1-2.1 4.2-2.1 3.8 0 4.5 2.5 4.5 5.7V21h-4.2v-6.3c0-1.5 0-3.4-2.1-3.4s-2.4 1.6-2.4 3.3V21H9.6z" />
+    </svg>
+  );
+}
+
 function ThemeSwitch({ theme, onToggle }: { theme: Theme; onToggle: () => void }) {
   return (
     <button
@@ -169,7 +180,7 @@ export function SiteHeader() {
             rel="noopener noreferrer"
             aria-label="LinkedIn"
           >
-            IN
+            <LinkedInIcon />
           </a>
           <span className="header-divider" aria-hidden="true" />
           <ThemeSwitch theme={theme} onToggle={toggleTheme} />

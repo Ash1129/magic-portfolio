@@ -16,7 +16,6 @@ import {
   siReact,
   siScikitlearn,
   siSqlite,
-  siTailwindcss,
   siVercel,
   type SimpleIcon,
 } from "simple-icons";
@@ -43,7 +42,6 @@ const tools: { name: string; icon?: SimpleIcon }[] = [
   { name: "FastAPI", icon: siFastapi },
   { name: "scikit-learn", icon: siScikitlearn },
   { name: "SQLite", icon: siSqlite },
-  { name: "Tailwind CSS", icon: siTailwindcss },
   { name: "Google Sheets", icon: siGooglesheets },
   { name: "Kore.ai" },
   { name: "GitHub", icon: siGithub },

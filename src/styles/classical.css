@@ -465,7 +465,7 @@ figure {
   height: 36px;
   font-size: 13px;
   border: 1px solid var(--color-text);
-  border-radius: 50%;
+  border-radius: 9px;
   color: var(--color-text);
   text-decoration: none;
   letter-spacing: 0.04em;
@@ -1144,7 +1144,9 @@ figure {
 .marquee__track {
   display: flex;
   width: max-content;
-  animation: marquee 48s linear infinite;
+  /* Loop time = one list's width / speed. At 22 tools (~2,863px) this runs ~63 px/s;
+     re-measure and update all four durations here if the list changes. */
+  animation: marquee 45.3s linear infinite;
 }
 
 .marquee__group {
@@ -1193,20 +1195,20 @@ figure {
 /* With Reduce Motion on, keep a gentle drift at half speed rather than stopping. */
 @media (prefers-reduced-motion: reduce) {
   .marquee__track {
-    animation-duration: 96s;
+    animation-duration: 90.6s;
   }
 }
 
-/* Phones: 30% faster (48s / 1.3), since a narrow screen shows only a couple of logos at once. */
+/* Phones: 30% faster (~82 px/s), since a narrow screen shows only a couple of logos at once. */
 @media (max-width: 720px) {
   .marquee__track {
-    animation-duration: 36.9s;
+    animation-duration: 34.8s;
   }
 }
 
 @media (max-width: 720px) and (prefers-reduced-motion: reduce) {
   .marquee__track {
-    animation-duration: 73.8s;
+    animation-duration: 69.6s;
   }
 }
 
