@@ -1,137 +1,103 @@
+import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getPosts } from "@/utils/utils";
-import {
-  Meta,
-  Schema,
-  AvatarGroup,
-  Button,
-  Column,
-  Flex,
-  Heading,
-  Media,
-  Text,
-  SmartLink,
-  Row,
-  Avatar,
-  Line,
-} from "@once-ui-system/core";
-import { baseURL, about, person, work } from "@/resources";
-import { formatDate } from "@/utils/formatDate";
-import { ScrollToHash, CustomMDX } from "@/components";
-import { Metadata } from "next";
-import { Projects } from "@/components/work/Projects";
+import { CustomMDX } from "@/components/mdx";
+import { PlateImage } from "@/components/PlateImage";
+import { getProject, getProjects } from "@/utils/projects";
 
-export async function generateStaticParams(): Promise<{ slug: string }[]> {
-  const posts = getPosts(["src", "app", "work", "projects"]);
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
+type Props = { params: Promise<{ slug: string }> };
+
+export function generateStaticParams() {
+  return getProjects().map((project) => ({ slug: project.slug }));
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string | string[] }>;
-}): Promise<Metadata> {
-  const routeParams = await params;
-  const slugPath = Array.isArray(routeParams.slug)
-    ? routeParams.slug.join("/")
-    : routeParams.slug || "";
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const project = getProject((await params).slug);
+  if (!project) return {};
 
-  const posts = getPosts(["src", "app", "work", "projects"]);
-  let post = posts.find((post) => post.slug === slugPath);
-
-  if (!post) return {};
-
-  return Meta.generate({
-    title: post.metadata.title,
-    description: post.metadata.summary,
-    baseURL: baseURL,
-    image: post.metadata.image || `/api/og/generate?title=${post.metadata.title}`,
-    path: `${work.path}/${post.slug}`,
-  });
+  const image = `/api/og/generate?title=${encodeURIComponent(project.title)}`;
+  return {
+    title: project.title,
+    description: project.summary,
+    openGraph: { type: "article", title: project.title, description: project.summary, images: [image] },
+  };
 }
 
-export default async function Project({
-  params,
-}: {
-  params: Promise<{ slug: string | string[] }>;
-}) {
-  const routeParams = await params;
-  const slugPath = Array.isArray(routeParams.slug)
-    ? routeParams.slug.join("/")
-    : routeParams.slug || "";
+export default async function ProjectPage({ params }: Props) {
+  const { slug } = await params;
+  const project = getProject(slug);
+  if (!project) notFound();
 
-  let post = getPosts(["src", "app", "work", "projects"]).find((post) => post.slug === slugPath);
-
-  if (!post) {
-    notFound();
-  }
-
-  const avatars =
-    post.metadata.team?.map((person) => ({
-      src: person.avatar,
-    })) || [];
+  const others = getProjects().filter((other) => other.slug !== slug);
 
   return (
-    <Column as="section" maxWidth="m" horizontal="center" gap="l">
-      <Schema
-        as="blogPosting"
-        baseURL={baseURL}
-        path={`${work.path}/${post.slug}`}
-        title={post.metadata.title}
-        description={post.metadata.summary}
-        datePublished={post.metadata.publishedAt}
-        dateModified={post.metadata.publishedAt}
-        image={
-          post.metadata.image || `/api/og/generate?title=${encodeURIComponent(post.metadata.title)}`
-        }
-        author={{
-          name: person.name,
-          url: `${baseURL}${about.path}`,
-          image: `${baseURL}${person.avatar}`,
-        }}
-      />
-      <Column maxWidth="s" gap="16" horizontal="center" align="center">
-        <SmartLink href="/work">
-          <Text variant="label-strong-m">Projects</Text>
-        </SmartLink>
-        <Text variant="body-default-xs" onBackground="neutral-weak" marginBottom="12">
-          {post.metadata.publishedAt && formatDate(post.metadata.publishedAt)}
-        </Text>
-        <Heading variant="display-strong-m">{post.metadata.title}</Heading>
-      </Column>
-      <Row marginBottom="32" horizontal="center">
-        <Row gap="16" vertical="center">
-          {post.metadata.team && <AvatarGroup reverse avatars={avatars} size="s" />}
-          <Text variant="label-default-m" onBackground="brand-weak">
-            {post.metadata.team?.map((member, idx) => (
-              <span key={idx}>
-                {idx > 0 && (
-                  <Text as="span" onBackground="neutral-weak">
-                    ,{" "}
-                  </Text>
-                )}
-                <SmartLink href={member.linkedIn}>{member.name}</SmartLink>
-              </span>
+    <article>
+      <header className="case-head">
+        <Link href="/#projects" className="back-link">
+          ← All projects
+        </Link>
+        <div className="project-card__meta">
+          <span>{project.kind}</span>
+          <span className="project-card__date">{project.date}</span>
+        </div>
+        <h1 className="case-title">{project.title}</h1>
+        <p className="case-summary justify">{project.summary}</p>
+        <ul className="tags">
+          {project.stack.map((tech) => (
+            <li key={tech} className="tag">
+              {tech}
+            </li>
+          ))}
+        </ul>
+        {project.link && (
+          <div className="actions">
+            <a
+              href={project.link}
+              className="btn btn--primary"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {project.linkLabel} →
+            </a>
+          </div>
+        )}
+      </header>
+
+      {project.images.length > 0 && (
+        <section className="case-gallery" aria-label="Screenshots">
+          {project.images.map((src, i) => (
+            <a key={src} href={src} target="_blank" rel="noopener noreferrer">
+              <PlateImage
+                src={src}
+                alt={`${project.title} screenshot ${i + 1}`}
+                fit="contain"
+                sizes={i === 0 ? "(max-width: 1120px) 100vw, 1000px" : "(max-width: 900px) 100vw, 500px"}
+                priority={i === 0}
+              />
+            </a>
+          ))}
+        </section>
+      )}
+
+      <div className="case-body">
+        <div className="prose">
+          <CustomMDX source={project.content} />
+        </div>
+      </div>
+
+      <section className="section">
+        <div className="wrap">
+          <div className="kicker">More projects</div>
+          <ul className="more-list">
+            {others.map((other) => (
+              <li key={other.slug} className="more-item">
+                <span className="kicker">{other.kind}</span>
+                <Link href={`/work/${other.slug}`}>{other.title}</Link>
+              </li>
             ))}
-          </Text>
-        </Row>
-      </Row>
-      {/* {post.metadata.images.length > 0 && (
-        <Media priority aspectRatio="16 / 9" radius="m" alt="image" src={post.metadata.images[0]} />
-      )} */}
-      <Column style={{ margin: "auto" }} as="article" maxWidth="xs">
-        <CustomMDX source={post.content} />
-      </Column>
-      <Column fillWidth gap="40" horizontal="center" marginTop="40">
-        <Line maxWidth="40" />
-        <Heading as="h2" variant="heading-strong-xl" marginBottom="24">
-          Related projects
-        </Heading>
-        <Projects exclude={[post.slug]} range={[2]} />
-      </Column>
-      <ScrollToHash />
-    </Column>
+          </ul>
+        </div>
+      </section>
+    </article>
   );
 }

@@ -1,52 +1,44 @@
-import { Button, Flex, Meta, Schema } from "@once-ui-system/core";
-import GalleryView from "@/components/gallery/GalleryView";
-import { baseURL, gallery, person } from "@/resources";
+import type { Metadata } from "next";
+import Image from "next/image";
+import { person, photography } from "@/resources";
 
-export async function generateMetadata() {
-  return Meta.generate({
-    title: gallery.title,
-    description: gallery.description,
-    baseURL: baseURL,
-    image: `/api/og/generate?title=${encodeURIComponent(gallery.title)}`,
-    path: gallery.path,
-  });
-}
+export const metadata: Metadata = {
+  title: "Photography",
+  description: photography.intro,
+  openGraph: { images: [`/api/og/generate?title=${encodeURIComponent("Photography")}`] },
+};
 
 export default function Gallery() {
   return (
-    <Flex maxWidth="l">
-      
-      <Schema
-        as="webPage"
-        baseURL={baseURL}
-        title={gallery.title}
-        description={gallery.description}
-        path={gallery.path}
-        image={`/api/og/generate?title=${encodeURIComponent(gallery.title)}`}
-        author={{
-          name: person.name,
-          url: `${baseURL}${gallery.path}`,
-          image: `${baseURL}${person.avatar}`,
-        }}
-      />
-      <Flex horizontal="start" style={{ marginBottom: "12.5rem" }}>
-        <Button
-          href="https://vsco.co/ashwinprajeeth/gallery"
-          target="_blank"
-          rel="noopener noreferrer"
-          // variant="solid"
-          size="s"
-          style={{
-            borderRadius: "9999px",
-            background: "var(--brand-background)",
-            color: "var(--brand-on-background)",
-          }}
-        >
-          View more on my VSCO ↗
-        </Button>
-      </Flex>
-      
-      <GalleryView />
-    </Flex>
+    <section className="section">
+      <div className="wrap">
+        <div className="section-head">
+          <div className="section-head__title">
+            <div className="kicker">Outside work</div>
+            <h1 className="display">Photography</h1>
+          </div>
+          <div className="section-head__aside stack">
+            <p>{photography.intro}</p>
+            <a href={person.vsco} className="btn btn--primary" target="_blank" rel="noopener noreferrer">
+              More on VSCO ↗
+            </a>
+          </div>
+        </div>
+        <div className="photo-grid">
+          {photography.images.map((image, i) => (
+            <figure key={image.src} className="plate">
+              <Image
+                src={image.src}
+                alt={image.alt}
+                width={image.width}
+                height={image.height}
+                sizes="(max-width: 720px) 100vw, 600px"
+                priority={i < 2}
+              />
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }

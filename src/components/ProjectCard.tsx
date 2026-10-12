@@ -1,90 +1,50 @@
-"use client";
+import Link from "next/link";
+import type { Project } from "@/utils/projects";
+import { PlateImage } from "./PlateImage";
 
-import {
-  AvatarGroup,
-  Carousel,
-  Column,
-  Flex,
-  Heading,
-  SmartLink,
-  Text,
-} from "@once-ui-system/core";
+export function ProjectCard({ project, priority }: { project: Project; priority?: boolean }) {
+  const href = `/work/${project.slug}`;
 
-interface ProjectCardProps {
-  href: string;
-  priority?: boolean;
-  images: string[];
-  title: string;
-  content: string;
-  description: string;
-  avatars: { src: string }[];
-  link: string;
-}
-
-export const ProjectCard: React.FC<ProjectCardProps> = ({
-  href,
-  images = [],
-  title,
-  content,
-  description,
-  avatars,
-  link,
-}) => {
   return (
-    <Column fillWidth gap="m">
-      <Carousel
-        sizes="(max-width: 960px) 100vw, 960px"
-        items={images.map((image) => ({
-          slide: image,
-          alt: title,
-        }))}
-      />
-      <Flex
-        s={{ direction: "column" }}
-        fillWidth
-        paddingX="s"
-        paddingTop="12"
-        paddingBottom="24"
-        gap="l"
-      >
-        {title && (
-          <Flex flex={5}>
-            <Heading as="h2" wrap="balance" variant="heading-strong-xl">
-              {title}
-            </Heading>
-          </Flex>
+    <article className="project-card">
+      {project.cover && (
+        // Duplicate of the title link, so it stays out of the tab order and accessibility tree.
+        <Link href={href} aria-hidden="true" tabIndex={-1}>
+          <PlateImage
+            src={project.cover}
+            alt={`${project.title} screenshot`}
+            ratio={project.coverRatio}
+            fit={project.coverFit}
+            sizes="(max-width: 1100px) 100vw, 600px"
+            priority={priority}
+          />
+        </Link>
+      )}
+      <div className="project-card__meta">
+        <span>{project.kind}</span>
+        <span className="project-card__date">{project.date}</span>
+      </div>
+      <h3 className="project-card__title">
+        <Link href={href}>{project.title}</Link>
+      </h3>
+      <p className="project-card__text justify">{project.summary}</p>
+      <ul className="tags">
+        {project.stack.map((tech) => (
+          <li key={tech} className="tag">
+            {tech}
+          </li>
+        ))}
+      </ul>
+      <div className="project-card__links">
+        <Link href={href} className="text-link">
+          Read the case study →
+        </Link>
+        {project.link && (
+          <a href={project.link} className="text-link" target="_blank" rel="noopener noreferrer">
+            {project.linkLabel} →
+          </a>
         )}
-        {(avatars?.length > 0 || description?.trim() || content?.trim()) && (
-          <Column flex={7} gap="16">
-            {avatars?.length > 0 && <AvatarGroup avatars={avatars} size="m" reverse />}
-            {description?.trim() && (
-              <Text wrap="balance" variant="body-default-s" onBackground="neutral-weak">
-                {description}
-              </Text>
-            )}
-            <Flex gap="24" wrap>
-              {content?.trim() && (
-                <SmartLink
-                  suffixIcon="arrowRight"
-                  style={{ margin: "0", width: "fit-content" }}
-                  href={href}
-                >
-                  <Text variant="body-default-s">Read case study</Text>
-                </SmartLink>
-              )}
-              {link && (
-                <SmartLink
-                  suffixIcon="arrowUpRightFromSquare"
-                  style={{ margin: "0", width: "fit-content" }}
-                  href={link}
-                >
-                  <Text variant="body-default-s">View project</Text>
-                </SmartLink>
-              )}
-            </Flex>
-          </Column>
-        )}
-      </Flex>
-    </Column>
+      </div>
+    </article>
   );
-};
+}

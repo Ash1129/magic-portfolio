@@ -1,27 +1,21 @@
-import mdx from "@next/mdx";
-
-const withMDX = mdx({
-  extension: /\.mdx?$/,
-  options: {},
-});
+// Pin the project root: a stray package-lock.json in the home folder otherwise
+// makes Next treat ~ as the workspace root and stall scanning it.
+const projectRoot = import.meta.dirname;
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  pageExtensions: ["ts", "tsx", "md", "mdx"],
+  outputFileTracingRoot: projectRoot,
+  turbopack: { root: projectRoot },
   transpilePackages: ["next-mdx-remote"],
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "www.google.com",
-        pathname: "**",
-      },
-    ],
-  },
-  sassOptions: {
-    compiler: "modern",
-    silenceDeprecations: ["legacy-js-api"],
+  // Pages folded into the single-page homepage keep working as old links.
+  async redirects() {
+    return [
+      { source: "/about", destination: "/#work", permanent: true },
+      { source: "/work", destination: "/#projects", permanent: true },
+      { source: "/blog", destination: "/", permanent: true },
+      { source: "/blog/:slug*", destination: "/", permanent: true },
+    ];
   },
 };
 
-export default withMDX(nextConfig);
+export default nextConfig;
