@@ -136,15 +136,15 @@ export const howIWork = {
 export const steps: Step[] = [
   {
     title: "Frame",
-    body: "Start with the business problem, not the technology. I dig into the data, talk to stakeholders, and turn ambiguity into a sharp PRD or PR/FAQ that everyone can sign off on.",
+    body: "I begin by identifying the core business problem rather than focusing on technology. I analyze data, consult stakeholders, and transform ambiguity into a clear Product Requirements Document (PRD) or PR/FAQ that achieves consensus.",
   },
   {
     title: "Build",
-    body: "Prototype fast and close to the metal. I scope the data, APIs and governance, then work with engineers to get a working proof of concept in front of users.",
+    body: "I rapidly develop prototypes with a focus on technical feasibility. I define the scope of data, application programming interfaces (APIs), and governance, collaborating with engineers to present a functional proof of concept to users.",
   },
   {
     title: "Deliver",
-    body: "A project only succeeds if it moves a number. I keep teams aligned on outcomes like adoption, automation and revenue, and see the work through to launch.",
+    body: "I measure project success by its impact on key performance indicators. I ensure team alignment on outcomes such as user adoption, process automation, and revenue generation, and oversee the project through to launch.",
   },
 ];
 
