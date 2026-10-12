@@ -10,8 +10,7 @@ const nextConfig = {
   // Pages folded into the single-page homepage keep working as old links.
   async redirects() {
     return [
-      { source: "/about", destination: "/#work", permanent: true },
-      { source: "/work", destination: "/#projects", permanent: true },
+      { source: "/about", destination: "/#experience", permanent: false },
       { source: "/blog", destination: "/", permanent: true },
       { source: "/blog/:slug*", destination: "/", permanent: true },
     ];

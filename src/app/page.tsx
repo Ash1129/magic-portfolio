@@ -1,17 +1,30 @@
 import Image from "next/image";
 import Link from "next/link";
+import { FeaturedWork } from "@/components/FeaturedWork";
+import { type OutlineItem, PageOutline } from "@/components/PageOutline";
 import { PlateImage } from "@/components/PlateImage";
-import { ProjectCard } from "@/components/ProjectCard";
+import { Services } from "@/components/Services";
+import { ToolsMarquee } from "@/components/ToolsMarquee";
 import { contact, hero, howIWork, person, photography, steps, work } from "@/resources";
-import { getProjects } from "@/utils/projects";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-export default function Home() {
-  const projects = getProjects();
+// Sections listed in the right-side page outline, in page order.
+const outline: OutlineItem[] = [
+  { id: "top", label: "Intro" },
+  { id: "services", label: "What I do" },
+  { id: "featured", label: "Featured projects" },
+  { id: "experience", label: "Experience" },
+  { id: "how-i-work", label: "How I work" },
+  { id: "approach", label: "Approach" },
+  { id: "photography", label: "Photography" },
+  { id: "contact", label: "Contact" },
+];
 
+export default function Home() {
   return (
     <>
+      <PageOutline items={outline} />
       <section id="top" className="hero">
         <div className="hero__text">
           <div className="kicker">{hero.kicker}</div>
@@ -21,7 +34,7 @@ export default function Home() {
           <div className="rule" />
           <p className="hero__bio justify">{hero.bio}</p>
           <div className="actions">
-            <a href="#work" className="btn btn--primary">
+            <a href="#featured" className="btn btn--primary">
               See my work
             </a>
             <a href={`mailto:${person.email}`} className="btn">
@@ -43,12 +56,16 @@ export default function Home() {
         </figure>
       </section>
 
-      <section id="work" className="section">
+      <ToolsMarquee />
+      <Services />
+      <FeaturedWork />
+
+      <section id="experience" className="section">
         <div className="wrap">
           <div className="section-head">
             <div className="section-head__title">
-              <div className="kicker">Featured work</div>
-              <h2 className="display">Selected projects</h2>
+              <div className="kicker">Experience</div>
+              <h2 className="display">Selected experience</h2>
             </div>
             <p className="section-head__aside">
               Work across consulting, product and early-stage ventures in India and the United
@@ -74,31 +91,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="projects" className="section">
-        <div className="wrap">
-          <div className="section-head">
-            <div className="section-head__title">
-              <div className="kicker">Projects</div>
-              <h2 className="display">Things I've built</h2>
-            </div>
-            <a
-              href={person.github}
-              className="btn btn--primary"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              All projects on GitHub
-            </a>
-          </div>
-          <div className="project-grid">
-            {projects.map((project, i) => (
-              <ProjectCard key={project.slug} project={project} priority={i < 2} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="section">
+      <section id="how-i-work" className="section">
         <div className="wrap">
           <div className="statement">
             <div className="kicker">How I work</div>
@@ -135,7 +128,7 @@ export default function Home() {
             <p className="section-head__aside">{photography.intro}</p>
           </div>
           <div className="photo-strip">
-            {photography.images.slice(0, 4).map((image) => (
+            {photography.images.map((image) => (
               <Link key={image.src} href="/gallery" aria-hidden="true" tabIndex={-1}>
                 <PlateImage
                   src={image.src}
@@ -171,6 +164,9 @@ export default function Home() {
               <div className="actions">
                 <a href={`mailto:${person.email}`} className="btn btn--primary">
                   Get in touch
+                </a>
+                <a href={person.resume} className="btn" target="_blank" rel="noopener noreferrer">
+                  View resume
                 </a>
               </div>
             </div>

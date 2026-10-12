@@ -33,7 +33,7 @@ export default async function ProjectPage({ params }: Props) {
   return (
     <article>
       <header className="case-head">
-        <Link href="/#projects" className="back-link">
+        <Link href="/work" className="back-link">
           ← All projects
         </Link>
         <div className="project-card__meta">

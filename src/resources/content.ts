@@ -11,6 +11,17 @@ export type Step = {
   body: string;
 };
 
+export type Service = {
+  icon: "venn" | "network" | "chart" | "star";
+  title: string;
+  body: string;
+};
+
+export type FeaturedProject = {
+  slug: string;
+  image?: string;
+};
+
 export type GalleryImage = {
   src: string;
   alt: string;
@@ -81,6 +92,40 @@ export const work: WorkItem[] = [
     result: "$80K in grants",
   },
 ];
+
+export const services: Service[] = [
+  {
+    icon: "venn",
+    title: "Product strategy",
+    body: "I turn ambiguous business problems into clear product direction: PR/FAQs, end-to-end PRDs and roadmaps that product, data and leadership can align on.",
+  },
+  {
+    icon: "network",
+    title: "GenAI & multi-agent systems",
+    body: "I scope and build AI products end to end, from RAG knowledge assistants on Vertex AI and Qdrant to multi-agent pipelines with OpenAI and Claude.",
+  },
+  {
+    icon: "chart",
+    title: "Consulting & business strategy",
+    body: "I run market research, competitive analysis and RFPs, coordinating delivery, pricing and roadmaps across finance, product and engineering to win client work.",
+  },
+  {
+    icon: "star",
+    title: "Team leadership",
+    body: "I lead and grow teams: eight data interns at VenueHorn, a five-person build team at Deloitte, and GenAI training that brought 15+ new analysts up to speed.",
+  },
+];
+
+export const featured = {
+  blurb:
+    "A few of the AI systems I've designed and built end to end: multi-agent investment research, healthcare claims automation and an agentic personal assistant.",
+  // The first project gets the large tile. `image` overrides the project's card image.
+  projects: [
+    { slug: "deepdiligence" },
+    { slug: "cotiviti-policy-to-rules" },
+    { slug: "cornell-personal-assistant", image: "/images/projects/cornell/featured.webp" },
+  ] satisfies FeaturedProject[],
+};
 
 export const howIWork = {
   heading:

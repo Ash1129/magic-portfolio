@@ -20,9 +20,9 @@ function readChoice(): Theme | null {
 }
 
 const links = [
-  { href: "/#work", label: "Work" },
-  { href: "/#projects", label: "Projects" },
-  { href: "/#approach", label: "Approach" },
+  { href: "/#featured", label: "Featured" },
+  { href: "/#experience", label: "Experience" },
+  { href: "/work", label: "Projects" },
   { href: "/#photography", label: "Photography" },
 ];
 
@@ -139,9 +139,6 @@ export function SiteHeader() {
               {link.label}
             </Link>
           ))}
-          <a href={person.resume} target="_blank" rel="noopener noreferrer" onClick={close}>
-            Resume
-          </a>
           {/* On phones the header tools collapse into this panel. */}
           <a
             href={person.linkedin}

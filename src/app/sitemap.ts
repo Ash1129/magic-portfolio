@@ -5,7 +5,7 @@ import { getProjects } from "@/utils/projects";
 export default function sitemap(): MetadataRoute.Sitemap {
   const today = new Date().toISOString().split("T")[0];
 
-  const pages = ["", "/gallery"].map((route) => ({
+  const pages = ["", "/work", "/gallery"].map((route) => ({
     url: `${baseURL}${route}`,
     lastModified: today,
   }));
