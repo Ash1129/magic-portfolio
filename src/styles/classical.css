@@ -614,12 +614,10 @@ figure {
 .hero__photo {
   width: 100%;
   height: auto;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 3 / 4;
   object-fit: cover;
-  object-position: 50% 62%;
   border: 8px solid var(--color-surface);
   outline: 1px solid var(--color-divider);
-  filter: sepia(0.22) saturate(0.82) contrast(1.05);
 }
 
 .caption {
