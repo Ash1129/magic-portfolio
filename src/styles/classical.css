@@ -1188,6 +1188,19 @@ figure {
   }
 }
 
+/* Phones: 30% faster (48s / 1.3), since a narrow screen shows only a couple of logos at once. */
+@media (max-width: 720px) {
+  .marquee__track {
+    animation-duration: 36.9s;
+  }
+}
+
+@media (max-width: 720px) and (prefers-reduced-motion: reduce) {
+  .marquee__track {
+    animation-duration: 73.8s;
+  }
+}
+
 /* ── Label column beside content (What I do, Featured work) ───────────── */
 
 .split {
@@ -1432,22 +1445,8 @@ figure {
 
 .outline ul:hover .outline__label,
 .outline:focus-within .outline__label {
-  max-width: 220px;
+  max-width: 180px;
   opacity: 1;
-}
-
-/* The open panel reads larger than the resting dashes. */
-.outline ul:hover,
-.outline:focus-within ul {
-  gap: 2px;
-  padding: 10px 8px;
-}
-
-.outline ul:hover a,
-.outline:focus-within a {
-  gap: 14px;
-  padding: 6px 4px;
-  font-size: 15px;
 }
 
 /* Resting dashes are short; they lengthen once the pointer is near. */
@@ -1485,18 +1484,6 @@ figure {
 .outline.is-near a.is-active .outline__dash,
 .outline:focus-within a.is-active .outline__dash {
   width: 16px;
-}
-
-/* Longer dashes in the open panel; placed after the resting/near dash rules
-   so these win. */
-.outline ul:hover .outline__dash,
-.outline:focus-within .outline__dash {
-  width: 14px;
-}
-
-.outline ul:hover a.is-active .outline__dash,
-.outline:focus-within a.is-active .outline__dash {
-  width: 22px;
 }
 
 /* Phones use the header menu instead. */
