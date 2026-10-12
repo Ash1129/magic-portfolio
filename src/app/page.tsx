@@ -114,9 +114,7 @@ export default function Home() {
                 <div className="step__text">
                   {/* One sentence per line. */}
                   {step.body.split(/(?<=\.)\s+/).map((sentence) => (
-                    <p key={sentence} className="justify">
-                      {sentence}
-                    </p>
+                    <p key={sentence}>{sentence}</p>
                   ))}
                 </div>
               </li>

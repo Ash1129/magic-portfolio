@@ -794,9 +794,14 @@ figure {
   font-size: 28px;
 }
 
+/* Left-aligned with no hyphenation: justified text in these narrow columns
+   opened wide word gaps and split words across lines. */
 .step__text {
   font-size: 16px;
   line-height: 1.7;
+  text-align: left;
+  hyphens: manual;
+  text-wrap: pretty;
 }
 
 .step__text p + p {
