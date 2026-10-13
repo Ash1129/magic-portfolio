@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FeaturedWork } from "@/components/FeaturedWork";
 import { type OutlineItem, PageOutline } from "@/components/PageOutline";
 import { PlateImage } from "@/components/PlateImage";
+import { VscoIcon } from "@/components/VscoIcon";
 import { Services } from "@/components/Services";
 import { ToolsMarquee } from "@/components/ToolsMarquee";
 import { contact, hero, howIWork, person, photography, steps, work } from "@/resources";
@@ -149,7 +150,7 @@ export default function Home() {
               View all photographs
             </Link>
             <a href={person.vsco} className="btn" target="_blank" rel="noopener noreferrer">
-              More on VSCO ↗
+              More on VSCO <VscoIcon />
             </a>
           </div>
         </div>

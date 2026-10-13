@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { VscoIcon } from "@/components/VscoIcon";
 import { person, photography } from "@/resources";
 
 export const metadata: Metadata = {
@@ -20,7 +21,7 @@ export default function Gallery() {
           <div className="section-head__aside stack">
             <p>{photography.intro}</p>
             <a href={person.vsco} className="btn btn--primary" target="_blank" rel="noopener noreferrer">
-              More on VSCO ↗
+              More on VSCO <VscoIcon />
             </a>
           </div>
         </div>
