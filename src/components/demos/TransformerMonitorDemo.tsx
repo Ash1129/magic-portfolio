@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import data from "@/data/transformer-monitor-demo.json";
 
 type Status = "inspect_now" | "review_needed" | "within_limits";
@@ -37,6 +37,22 @@ const demo = data as unknown as {
   rules: Rule[];
   areas: Area[];
   units: Unit[];
+  alerts: Alert[];
+  report: { status: string; rerunCount: number; exceptionsTotal: number; calibrationCasesInQueue: number; playbookVersion: string; steps: number };
+};
+type Alert = {
+  id: number;
+  createdAt: string;
+  runId: string;
+  periodId: string;
+  step: number;
+  stepName: string;
+  level: "error" | "warning";
+  title: string;
+  meaning: string;
+  action: string;
+  details: string;
+  delivered: string;
 };
 
 const TIER: Record<Status, { label: string; color: string; order: number }> = {
@@ -116,6 +132,155 @@ const areaPaths = demo.areas.map((a) => {
 const areaName = (id: string) => demo.areas.find((a) => a.id === id)?.name ?? id;
 const shortArea = (id: string) => areaName(id).replace(/^(Town|City|Village) of /, "");
 const fmt = (n: number | null | undefined, d = 1) => (n == null ? "—" : n.toFixed(d));
+
+/* ── Dashboard figures, worked out once from the units' own daily peaks ── */
+
+const PEAK_BANDS = [
+  { key: "hi", label: "90% or more", color: TIER.inspect_now.color, test: (r: number) => r >= 0.9 },
+  { key: "mid", label: "70 to 90%", color: TIER.review_needed.color, test: (r: number) => r >= 0.7 && r < 0.9 },
+  { key: "lo", label: "Under 70%", color: TIER.within_limits.color, test: (r: number) => r < 0.7 },
+];
+const STABILITY = [
+  { key: "stable", label: "Stable", color: TIER.within_limits.color },
+  { key: "signal", label: "Unstable", color: TIER.inspect_now.color },
+  { key: "insufficient_history", label: "Short history", color: TIER.review_needed.color },
+];
+const median = (xs: number[]) => {
+  const a = [...xs].sort((p, q) => p - q);
+  const m = Math.floor(a.length / 2);
+  return a.length % 2 ? a[m] : (a[m - 1] + a[m]) / 2;
+};
+const quantile = (xs: number[], q: number) => {
+  const a = [...xs].sort((p, q2) => p - q2);
+  return a[Math.min(a.length - 1, Math.floor(q * a.length))];
+};
+const DASH = (() => {
+  const u = demo.units;
+  const daily = demo.dates.map((date, i) => {
+    const ratios = u.flatMap((x) => (x.peaks[i] == null ? [] : [(x.peaks[i] as number) / x.rated]));
+    return {
+      date,
+      near: (100 * ratios.filter((r) => r >= 0.9).length) / ratios.length,
+      signals: u.filter((x) => x.signals.some((sg) => sg.date === date)).length,
+      median: 100 * median(ratios),
+      q1: 100 * quantile(ratios, 0.25),
+      q3: 100 * quantile(ratios, 0.75),
+    };
+  });
+  const areas = demo.areas
+    .map((a) => {
+      const inArea = u.filter((x) => x.area === a.id);
+      return {
+        id: a.id,
+        name: areaName(a.id),
+        units: inArea.length,
+        inspect_now: inArea.filter((x) => x.status === "inspect_now").length,
+        review_needed: inArea.filter((x) => x.status === "review_needed").length,
+        within_limits: inArea.filter((x) => x.status === "within_limits").length,
+        maxRatio: Math.max(...inArea.map((x) => x.ratio)),
+      };
+    })
+    .sort((a, b) => b.inspect_now - a.inspect_now || b.review_needed - a.review_needed);
+  return {
+    status: (Object.keys(TIER) as Status[]).map((k) => ({ key: k, label: TIER[k].label, color: TIER[k].color, count: demo.summary[k] })),
+    stability: STABILITY.map((b) => ({ ...b, count: u.filter((x) => x.stability === b.key).length })),
+    peak: PEAK_BANDS.map((b) => ({ ...b, count: u.filter((x) => b.test(x.ratio)).length })),
+    daily,
+    areas,
+  };
+})();
+
+function Donut({ slices, title, onPick }: { slices: { key: string; label: string; color: string; count: number }[]; title: string; onPick?: (key: string) => void }) {
+  const total = slices.reduce((s, x) => s + x.count, 0);
+  const r = 40;
+  const c = 2 * Math.PI * r;
+  let acc = 0;
+  return (
+    <figure className="tcm-pie">
+      <svg viewBox="0 0 100 100" role="img" aria-label={`${title}: ${slices.map((x) => `${x.label} ${x.count}`).join(", ")}`}>
+        {slices.map((x) => {
+          const len = (x.count / total) * c;
+          const el = <circle key={x.key} cx="50" cy="50" r={r} fill="none" stroke={x.color} strokeWidth="18" strokeDasharray={`${len} ${c - len}`} strokeDashoffset={-acc} transform="rotate(-90 50 50)" />;
+          acc += len;
+          return el;
+        })}
+        <text x="50" y="54" className="tcm-pie__total">
+          {total}
+        </text>
+      </svg>
+      <figcaption>
+        <h4>{title}</h4>
+        <ul>
+          {slices.map((x) => (
+            <li key={x.key}>
+              {onPick ? (
+                <button type="button" onClick={() => onPick(x.key)}>
+                  <i style={{ background: x.color }} /> {x.label} <b>{x.count}</b>
+                </button>
+              ) : (
+                <span>
+                  <i style={{ background: x.color }} /> {x.label} <b>{x.count}</b>
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </figcaption>
+    </figure>
+  );
+}
+
+/** A small daily series over the 60-day window, with the reporting week shaded. */
+function Trend({ title, sub, values, band, unit }: { title: string; sub: string; values: number[]; band?: [number, number][]; unit?: string }) {
+  const w = 420;
+  const h = 150;
+  const m = { l: 34, r: 8, t: 10, b: 20 };
+  const all = [...values, ...(band?.flat() ?? [])];
+  const vmin = Math.min(...all);
+  const vmax = Math.max(...all);
+  const span = vmax - vmin || 1;
+  const x = (i: number) => m.l + (i / (values.length - 1)) * (w - m.l - m.r);
+  const y = (v: number) => m.t + (1 - (v - vmin) / span) * (h - m.t - m.b);
+  const periodStart = demo.dates.indexOf(demo.period.start);
+  const line = values.map((v, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join("");
+  const area = band ? `${band.map(([lo], i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(lo).toFixed(1)}`).join("")}${[...band].reverse().map(([, hi], k) => `L${x(band.length - 1 - k).toFixed(1)},${y(hi).toFixed(1)}`).join("")}Z` : "";
+  const ticks = [vmin, (vmin + vmax) / 2, vmax];
+  const labelAt = [0, Math.floor(values.length / 2), values.length - 1];
+  return (
+    <figure className="tcm-trend">
+      <figcaption>
+        <h4>{title}</h4>
+        <span>{sub}</span>
+      </figcaption>
+      <svg className="tcm-chart" viewBox={`0 0 ${w} ${h}`} role="img" aria-label={`${title}, daily`}>
+        <rect x={x(periodStart)} y={m.t} width={w - m.r - x(periodStart)} height={h - m.t - m.b} className="tcm-chart__period" />
+        {ticks.map((t) => (
+          <g key={t}>
+            <line x1={m.l} x2={w - m.r} y1={y(t)} y2={y(t)} className="tcm-chart__grid" />
+            <text x={m.l - 5} y={y(t) + 4} className="tcm-chart__tick">
+              {t.toFixed(t >= 10 ? 0 : 1)}
+            </text>
+          </g>
+        ))}
+        {band && <path d={area} className="tcm-trend__band" />}
+        <path d={line} className="tcm-chart__line" />
+        {values.map((v, i) => (
+          <circle key={demo.dates[i]} cx={x(i)} cy={y(v)} r={1.8} className="tcm-chart__pt">
+            <title>
+              {demo.dates[i]}: {v.toFixed(1)}
+              {unit}
+            </title>
+          </circle>
+        ))}
+        {labelAt.map((i) => (
+          <text key={i} x={x(i)} y={h - 5} className="tcm-chart__tick" textAnchor={i === 0 ? "start" : i === values.length - 1 ? "end" : "middle"}>
+            {demo.dates[i].slice(5)}
+          </text>
+        ))}
+      </svg>
+    </figure>
+  );
+}
 
 /* ── Control chart (I-MR individuals chart) for one unit ───────────────── */
 
@@ -303,6 +468,19 @@ export function TransformerMonitorDemo() {
   const [show, setShow] = useState<Record<Status, boolean>>({ inspect_now: true, review_needed: true, within_limits: true });
   const [decisions, setDecisions] = useState<Record<string, Decision>>({});
   const [queueFilter, setQueueFilter] = useState<"all" | Status>("all");
+  const [view, setView] = useState<"map" | "dashboard" | "alerts" | "metrics">("map");
+  const [acked, setAcked] = useState<Record<number, string>>({});
+  // Each recorded decision with how long the reviewer had the unit open, for the metrics page.
+  const [reviewLog, setReviewLog] = useState<{ outcome: Decision["outcome"]; seconds: number }[]>([]);
+  const openedAt = useRef<number>(0);
+  useEffect(() => {
+    openedAt.current = Date.now();
+  }, [selected]);
+  const recordDecision = (id: string, d: Decision) => {
+    setDecisions((v) => ({ ...v, [id]: d }));
+    setReviewLog((l) => [...l, { outcome: d.outcome, seconds: (Date.now() - openedAt.current) / 1000 }]);
+  };
+  const openAlerts = demo.alerts.filter((a) => !acked[a.id]).length;
 
   const unit = demo.units.find((u) => u.id === selected) ?? null;
   const visible = demo.units.filter((u) => show[u.status] && (!focusArea || u.area === focusArea));
@@ -353,7 +531,24 @@ export function TransformerMonitorDemo() {
         <span className="demo__meta">{demo.summary.transformers} transformers</span>
       </div>
 
+      <div className="demo__tabs" role="tablist" aria-label="Capacity monitor pages">
+        {(
+          [
+            ["map", "Map"],
+            ["dashboard", "Dashboard"],
+            ["alerts", openAlerts ? `Alerts · ${openAlerts}` : "Alerts"],
+            ["metrics", "Review metrics"],
+          ] as const
+        ).map(([key, label]) => (
+          <button key={key} type="button" role="tab" aria-selected={view === key} className={`demo-tab${view === key ? " is-active" : ""}`} onClick={() => setView(key)}>
+            {label}
+          </button>
+        ))}
+      </div>
+
       <div className="demo__body">
+        {view === "map" && (
+        <>
         <div className="tcm-top">
           <div className="tcm-legend" role="group" aria-label="Tiers">
             {(Object.keys(TIER) as Status[]).map((s) => (
@@ -420,7 +615,7 @@ export function TransformerMonitorDemo() {
                 <button type="button" className="tcm-side__back" onClick={() => setSelected(null)}>
                   ← Review queue
                 </button>
-                <UnitDetail key={unit.id} unit={unit} decision={decisions[unit.id]} onDecide={(d) => setDecisions((v) => ({ ...v, [unit.id]: d }))} />
+                <UnitDetail key={unit.id} unit={unit} decision={decisions[unit.id]} onDecide={(d) => recordDecision(unit.id, d)} />
               </>
             ) : (
               <>
@@ -493,6 +688,210 @@ export function TransformerMonitorDemo() {
             </tbody>
           </table>
         </details>
+        </>
+        )}
+
+        {view === "dashboard" && (
+          <div className="tcm-dash">
+            <div className="tcm-dash__head">
+              <div>
+                <div className="kicker">Whole county</div>
+                <div className="memo__meta">
+                  Week ending {demo.period.period_id} · {demo.summary.flagged} need a person · report {demo.report.status}, rerun {demo.report.rerunCount} times
+                </div>
+              </div>
+              {openAlerts > 0 && (
+                <button type="button" className="demo-chip demo-chip--sm" onClick={() => setView("alerts")}>
+                  Needs attention · {openAlerts} unacknowledged alert{openAlerts === 1 ? "" : "s"}
+                </button>
+              )}
+            </div>
+
+            <div className="tcm-pies">
+              <Donut
+                title="Review status"
+                slices={DASH.status}
+                onPick={(k) => {
+                  setShow({ inspect_now: k === "inspect_now", review_needed: k === "review_needed", within_limits: k === "within_limits" });
+                  setView("map");
+                }}
+              />
+              <Donut title="Load pattern" slices={DASH.stability} />
+              <Donut title="Peak against rating" slices={DASH.peak} />
+            </div>
+
+            <div className="kicker">Daily trends · whole county</div>
+            <div className="tcm-trends">
+              <Trend title="Near rating" sub="Daily share at or above 90% of rating (%)" values={DASH.daily.map((d) => d.near)} unit="%" />
+              <Trend title="Transformers with signals" sub="Daily count · each transformer counted once" values={DASH.daily.map((d) => d.signals)} />
+              <Trend title="Typical loading" sub="Median daily peak · band shows middle 50% · % of rating" values={DASH.daily.map((d) => d.median)} band={DASH.daily.map((d) => [d.q1, d.q3] as [number, number])} unit="%" />
+            </div>
+
+            <div className="kicker">By town</div>
+            <table className="tcm-areas">
+              <thead>
+                <tr>
+                  <th>Town</th>
+                  <th>Units</th>
+                  <th>Inspect</th>
+                  <th>Review</th>
+                  <th>Within</th>
+                  <th>Highest peak</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {DASH.areas.map((a) => (
+                  <tr key={a.id}>
+                    <td>{a.name}</td>
+                    <td>{a.units}</td>
+                    <td style={{ color: a.inspect_now ? TIER.inspect_now.color : undefined }}>{a.inspect_now}</td>
+                    <td style={{ color: a.review_needed ? TIER.review_needed.color : undefined }}>{a.review_needed}</td>
+                    <td>{a.within_limits}</td>
+                    <td>{Math.round(a.maxRatio * 100)}%</td>
+                    <td>
+                      <button
+                        type="button"
+                        className="tcm-areas__go"
+                        onClick={() => {
+                          setFocusArea(a.id);
+                          setView("map");
+                        }}
+                      >
+                        Map →
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {view === "alerts" && (
+          <div className="tcm-alerts">
+            <div className="tcm-dash__head">
+              <div>
+                <div className="kicker">Alerts</div>
+                <div className="memo__meta">
+                  {openAlerts === 0 ? "Nothing needs a look right now." : `${openAlerts} alert${openAlerts === 1 ? " needs" : "s need"} a look.`} Each one says what happened and what to do; the technical text is tucked underneath.
+                </div>
+              </div>
+              <div className="demo__chips">
+                <span className="demo-chip demo-chip--sm is-active">Open {openAlerts}</span>
+                <span className="demo-chip demo-chip--sm">Acknowledged {demo.alerts.length - openAlerts}</span>
+              </div>
+            </div>
+            {demo.alerts.map((a) => (
+              <article key={a.id} className={`tcm-alert${acked[a.id] ? " is-acked" : ""}`}>
+                <div className="tcm-alert__when">
+                  <div>
+                    {a.createdAt.slice(0, 10)}
+                    <span>{a.createdAt.slice(11, 16)}</span>
+                  </div>
+                  <b className={`tcm-alert__level tcm-alert__level--${a.level}`}>{a.level === "error" ? "Run stopped" : "Needs attention"}</b>
+                  <small>
+                    Week ending {a.periodId}
+                    <br />
+                    Stopped at step {a.step} of {demo.report.steps} · {a.stepName}
+                  </small>
+                </div>
+                <div className="tcm-alert__body">
+                  <h4>{a.title}</h4>
+                  <dl>
+                    <dt>What happened</dt>
+                    <dd>{a.meaning}</dd>
+                    <dt>What to do</dt>
+                    <dd>{a.action}</dd>
+                  </dl>
+                  <details>
+                    <summary>Technical details</summary>
+                    <code>{a.details}</code>
+                  </details>
+                </div>
+                <div className="tcm-alert__ack">
+                  {acked[a.id] ? (
+                    <>
+                      <span className="tcm-alert__done">✓ Acknowledged</span>
+                      <small>by you · {acked[a.id]}</small>
+                    </>
+                  ) : (
+                    <>
+                      <button type="button" className="demo-chip demo-chip--sm" onClick={() => setAcked((v) => ({ ...v, [a.id]: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }))}>
+                        Acknowledge
+                      </button>
+                      <small>Marks it read for everyone. It stays in the list.</small>
+                    </>
+                  )}
+                  <small className="tcm-alert__via">{a.delivered}</small>
+                </div>
+              </article>
+            ))}
+            <p className="p2r__hint">Alerts are written by the tool from fixed rules when a run stops or an input looks wrong. Acknowledging does not change any equipment or rerun anything.</p>
+          </div>
+        )}
+
+        {view === "metrics" && (() => {
+          const n = reviewLog.length;
+          const overrides = reviewLog.filter((r) => r.outcome !== "approve").length;
+          const secs = reviewLog.map((r) => r.seconds);
+          const fast = secs.filter((x) => x < 20).length;
+          return (
+            <div className="tcm-metrics">
+              <div className="kicker">Review metrics</div>
+              <p className="memo__summary">Overrides near zero, or reviews that take seconds, mean the review has become a rubber stamp. Seeded known-wrong cases measure whether reviewers catch errors.</p>
+              <dl className="tcm-facts tcm-facts--metrics">
+                <div>
+                  <dt>Dispositions recorded</dt>
+                  <dd>
+                    {n} <span className="tcm-facts__sub">of {demo.report.exceptionsTotal} exceptions this period</span>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Override rate</dt>
+                  <dd>
+                    {n ? `${Math.round((100 * overrides) / n)}%` : "—"} <span className="tcm-facts__sub">of cases were Override or Reject</span>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Time per review</dt>
+                  <dd>
+                    {n ? `median ${Math.round(median(secs))} s` : "—"}
+                    <span className="tcm-facts__sub">
+                      {n ? `mean ${Math.round(secs.reduce((s, x) => s + x, 0) / n)} s · ${fast} under 20 s` : "measured from opening a unit to recording the decision"}
+                    </span>
+                  </dd>
+                </div>
+                <div>
+                  <dt>Known-wrong calibration cases</dt>
+                  <dd>
+                    0 caught of {demo.report.calibrationCasesInQueue} seen <span className="tcm-facts__sub">none seeded in this period's queue</span>
+                  </dd>
+                </div>
+              </dl>
+              {n === 0 ? (
+                <p className="p2r__hint">
+                  No decisions yet. Open a flagged unit on the{" "}
+                  <button type="button" className="tcm-link" onClick={() => setView("map")}>
+                    Map
+                  </button>{" "}
+                  and record one; the figures here update as you go.
+                </p>
+              ) : (
+                <ol className="tcm-queue tcm-queue--log">
+                  {reviewLog.map((r, i) => (
+                    <li key={i} className="tcm-queue__item tcm-queue__item--static">
+                      <span className="tcm-queue__name">
+                        <span className="ranking__company">{r.outcome === "approve" ? "Approved" : r.outcome === "override" ? "Override" : "Rejected"}</span>
+                      </span>
+                      <span className="tcm-queue__ratio">{Math.round(r.seconds)} s</span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
