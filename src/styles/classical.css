@@ -3464,3 +3464,28 @@ a.demo-src:hover {
     height: 70vh;
   }
 }
+
+/* Transformer map: basemap tiles under the boundaries, with their attribution. */
+.tcm-map-wrap {
+  position: relative;
+}
+
+.tcm-tiles image {
+  opacity: 0.75;
+}
+
+.tcm-attrib {
+  position: absolute;
+  right: 6px;
+  bottom: 4px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: rgb(0 0 0 / 0.45);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--demo-muted);
+}
+
+.tcm-attrib a {
+  color: inherit;
+}

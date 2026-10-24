@@ -118,13 +118,13 @@ export const services: Service[] = [
 
 export const featured = {
   blurb:
-    "A few of the AI systems I've designed and built end to end: multi-agent investment research, healthcare claims automation and an agentic personal assistant.",
+    "A few of the AI systems I've designed and built end to end: a guide that turns a business problem into an agent architecture, a fixed-rules monitor for a county's grid, and multi-agent investment research.",
   // The first project gets the large tile. `image` overrides the project's card image.
   projects: [
+    { slug: "blueprint" },
+    { slug: "transformer-capacity-monitor" },
     { slug: "deepdiligence" },
-    { slug: "cotiviti-policy-to-rules" },
-    { slug: "cornell-personal-assistant", image: "/images/projects/cornell/featured.webp" },
-  ] satisfies FeaturedProject[],
+  ] as FeaturedProject[],
 };
 
 export const howIWork = {

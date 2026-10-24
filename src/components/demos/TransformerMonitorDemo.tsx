@@ -52,25 +52,55 @@ const SIGNAL_LABEL: Record<string, string> = {
   eight_in_a_row_one_side: "8 in a row one side",
 };
 
-/* ── Map projection: equirectangular fit of the county's bounding box ──── */
+/* ── Map projection: Web Mercator, fitted to the county's bounding box ──
+   The same projection as the tile servers use, so basemap tiles line up. */
 
 const W = 1000;
 const H = 760;
 const PAD = 24;
+const TILE = 256;
 const ringPts = demo.areas.flatMap((a) => a.rings.flat(2));
+// World coordinates in [0, 1]: x east from the antimeridian, y south from the pole.
+const wx = (lon: number) => (lon + 180) / 360;
+const wy = (lat: number) => {
+  const phi = (lat * Math.PI) / 180;
+  return (1 - Math.log(Math.tan(phi) + 1 / Math.cos(phi)) / Math.PI) / 2;
+};
 const minLat = Math.min(...demo.units.map((u) => u.lat), ...ringPts.map((p) => p[1]));
 const maxLat = Math.max(...demo.units.map((u) => u.lat), ...ringPts.map((p) => p[1]));
 const minLon = Math.min(...demo.units.map((u) => u.lon), ...ringPts.map((p) => p[0]));
 const maxLon = Math.max(...demo.units.map((u) => u.lon), ...ringPts.map((p) => p[0]));
-// Correct longitude for latitude so the county keeps its true shape.
-const cosLat = Math.cos(((minLat + maxLat) / 2) * (Math.PI / 180));
-const spanX = (maxLon - minLon) * cosLat;
-const spanY = maxLat - minLat;
-const scale = Math.min((W - 2 * PAD) / spanX, (H - 2 * PAD) / spanY);
-const offX = (W - spanX * scale) / 2;
-const offY = (H - spanY * scale) / 2;
-const px = (lon: number) => offX + (lon - minLon) * cosLat * scale;
-const py = (lat: number) => offY + (maxLat - lat) * scale;
+const wx0 = wx(minLon);
+const wy0 = wy(maxLat);
+const scale = Math.min((W - 2 * PAD) / (wx(maxLon) - wx0), (H - 2 * PAD) / (wy(minLat) - wy0));
+const offX = (W - (wx(maxLon) - wx0) * scale) / 2;
+const offY = (H - (wy(minLat) - wy0) * scale) / 2;
+const px = (lon: number) => offX + (wx(lon) - wx0) * scale;
+const py = (lat: number) => offY + (wy(lat) - wy0) * scale;
+
+/** Basemap tiles covering a viewBox, at the zoom where a tile is about TILE px on screen. */
+function tilesFor(vx: number, vy: number, vw: number, vh: number) {
+  const z = Math.max(8, Math.min(16, Math.round(Math.log2((scale * (W / vw)) / TILE))));
+  const n = 2 ** z;
+  const size = scale / n;
+  const tx0 = Math.floor((wx0 + (vx - offX) / scale) * n);
+  const tx1 = Math.floor((wx0 + (vx + vw - offX) / scale) * n);
+  const ty0 = Math.floor((wy0 + (vy - offY) / scale) * n);
+  const ty1 = Math.floor((wy0 + (vy + vh - offY) / scale) * n);
+  const out: { key: string; href: string; x: number; y: number; size: number }[] = [];
+  for (let tx = tx0; tx <= tx1; tx++) {
+    for (let ty = ty0; ty <= ty1; ty++) {
+      out.push({
+        key: `${z}/${tx}/${ty}`,
+        href: `https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/${z}/${ty}/${tx}`,
+        x: offX + (tx / n - wx0) * scale,
+        y: offY + (ty / n - wy0) * scale,
+        size,
+      });
+    }
+  }
+  return out;
+}
 
 const areaPaths = demo.areas.map((a) => {
   const pts = a.rings[0][0];
@@ -305,6 +335,10 @@ export function TransformerMonitorDemo() {
     return `${x0 - (W * s - bw) / 2} ${y0 - (H * s - bh) / 2} ${W * s} ${H * s}`;
   }, [focusArea]);
   const zoom = focusArea ? Number(viewBox.split(" ")[2]) / W : 1;
+  const tiles = useMemo(() => {
+    const [vx, vy, vw, vh] = viewBox.split(" ").map(Number);
+    return tilesFor(vx, vy, vw, vh);
+  }, [viewBox]);
 
   return (
     <div className="demo tcm" aria-live="polite">
@@ -342,6 +376,11 @@ export function TransformerMonitorDemo() {
         <div className="tcm-layout">
           <div className="tcm-map-wrap">
             <svg className="tcm-map" viewBox={viewBox} role="img" aria-label="Map of Tompkins County transformers coloured by tier">
+              <g className="tcm-tiles" aria-hidden="true">
+                {tiles.map((t) => (
+                  <image key={t.key} href={t.href} x={t.x} y={t.y} width={t.size} height={t.size} />
+                ))}
+              </g>
               {areaPaths.map((a) => (
                 <path key={a.id} d={a.d} className={`tcm-area${focusArea === a.id ? " is-focus" : ""}`} onDoubleClick={() => setFocusArea(focusArea === a.id ? null : a.id)}>
                   <title>{a.name} · double-click to focus</title>
@@ -368,6 +407,10 @@ export function TransformerMonitorDemo() {
                 </circle>
               ))}
             </svg>
+            <span className="tcm-attrib">
+              Basemap: Esri, HERE, Garmin · ©{" "}
+              <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors
+            </span>
           </div>
 
           <aside className="tcm-side">
