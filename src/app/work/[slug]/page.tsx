@@ -70,7 +70,7 @@ export default async function ProjectPage({ params }: Props) {
           <div className="case-demo__head">
             <div className="kicker">Try it</div>
             <h2 id="demo-heading" className="case-demo__title">
-              A working recreation you can click through
+              {demo.title ?? "A working recreation you can click through"}
             </h2>
           </div>
           <demo.Component />

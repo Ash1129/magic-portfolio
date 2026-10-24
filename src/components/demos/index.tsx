@@ -1,13 +1,19 @@
 import type { ComponentType } from "react";
+import { BlueprintDemo } from "./BlueprintDemo";
 import { DeepDiligenceDemo } from "./DeepDiligenceDemo";
 import { LeadGeneratorDemo } from "./LeadGeneratorDemo";
 import { PolicyToRulesDemo } from "./PolicyToRulesDemo";
 import { TransformerMonitorDemo } from "./TransformerMonitorDemo";
 
-type Demo = { Component: ComponentType; note: string };
+type Demo = { Component: ComponentType; note: string; title?: string };
 
 /** Interactive recreations shown on a project's case-study page, keyed by slug. */
 const demos: Record<string, Demo> = {
+  blueprint: {
+    Component: BlueprintDemo,
+    title: "The live site, right here",
+    note: "This is the published site itself, running in a frame: describe a task, answer the short survey and read the design, or open \"Explore an example\" for a finished one. The public version decides by the hundred rules alone; the Claude decision layer runs only in the local build, so nothing here calls a model.",
+  },
   "cotiviti-policy-to-rules": {
     Component: PolicyToRulesDemo,
     note: "The policy, the extracted rules, the sample claims and the reimbursement rates are the project's own files, and the adjudication engine is the project's own code, ported line for line and run live in your browser. The extraction step is replayed; the LLM cross-check needs an API key, so it is described rather than run. Nothing is sent anywhere.",

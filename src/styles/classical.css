@@ -3408,3 +3408,59 @@ a.demo-src:hover {
     font-size: 10px;
   }
 }
+
+/* Blueprint: the live site in a frame. */
+.bp__open {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--demo-gold);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.bp__open:hover {
+  text-decoration: underline;
+}
+
+.bp__frame {
+  position: relative;
+  height: min(720px, 80vh);
+  background: #f3f4f3;
+}
+
+.bp__frame iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.bp__frame.is-loaded iframe {
+  opacity: 1;
+}
+
+.bp__loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: #6b6f6c;
+}
+
+@media (max-width: 640px) {
+  .bp .demo__title {
+    display: none;
+  }
+
+  .bp .demo__bar {
+    justify-content: space-between;
+  }
+
+  .bp__frame {
+    height: 70vh;
+  }
+}

@@ -1,0 +1,109 @@
+---
+title: "Blueprint: the Agent Architecture Guide"
+publishedAt: "2026-10-22"
+summary: "Describe what's holding your business back. Blueprint designs the AI or automation system that fixes it, explains every choice with the research behind it, and hands you a starter kit to build it. A hundred published decision rules set the limits; a Claude model decides within them, and every AI step is checked before it is shown."
+kind: "AI product · Decision tooling"
+stack:
+  - "React 19"
+  - "TypeScript"
+  - "Vite"
+  - "Tailwind CSS 4"
+  - "Motion"
+  - "Claude Haiku 5.5 · Sonnet 5.5"
+link: "https://blueprintstudio.me"
+linkLabel: "Open blueprintstudio.me"
+cover: "/images/projects/blueprint/result.webp"
+images:
+  - "/images/projects/blueprint/result.webp"
+  - "/images/projects/blueprint/landing.webp"
+  - "/images/projects/blueprint/how.webp"
+team:
+  - name: "Ashwin Prajeeth"
+    role: "Engineering Management Graduate Student"
+    avatar: "/images/Ash.jpeg"
+    linkedIn: "https://www.linkedin.com/in/ashwinprajeeth/"
+---
+
+## Overview
+
+Blueprint takes one plainly described business task and turns it into a starting AI architecture: whether the task needs AI at all, the main tool and supporting pieces, where it runs, how much the system may do on its own, which model runs each step, what it will cost to run, and the traps to avoid. Every answer comes with the research behind it, and the result ships with a starter kit a coding assistant can build from.
+
+It is built for an experienced businessperson, not an engineer, and it never hides a judgement call behind a confident tone. The live site is at [blueprintstudio.me](https://blueprintstudio.me); the source is on [GitHub](https://github.com/Ash1129/agent-architecture-guide).
+
+## Problem
+
+Most business owners know exactly what is slow, expensive or error-prone in their operation. What they don't know is whether AI can help, and if so, what kind. The market answers that question with product names: "use an agent", "set up n8n", "try a multi-agent framework". None of those is a decision.
+
+The decision is whether the task needs AI at all, how much the system should be allowed to do on its own, where the data may go, which model should run each step, and what will go wrong if you get it wrong.
+
+Start with the problem. Not the technology.
+
+## What you get
+
+| | |
+|---|---|
+| **Solution** | The recommendation in plain English: plain automation, a workflow with AI steps, one agent or a team of agents; the main tool and supporting pieces; where it runs; the autonomy level; the model for each kind of AI step; and an estimated monthly running cost. |
+| **Workflow** | An interactive architecture diagram of every step: who or what does it, why it's there, what it passes on, and its safeguards (approvals, stop rules and loops). Flip any step for its sources. A guided walkthrough explains the design end to end. |
+| **Build** | A starter kit: `BUILD.md` written for an AI coding assistant such as Claude Code, plus a system prompt, a Skill, an MCP config, an n8n workflow, an Airflow DAG, a test set and engineering notes, each matched to the design. |
+| **Cost and effort** | Running cost per month from real model and plan prices, the review time a person will spend, build time, and own-hardware cost where relevant. Always ranges, always with the assumptions shown. |
+| **Shortlist** | When a second option is worth weighing, the alternative and its trade-off. |
+| **Simpler start** | A smaller version of the design you can run first, with what it gives up. |
+| **System map** | When one problem holds several jobs (screening applications, then scheduling interviews), each job gets its own design, joined by the handoffs between them and every point where a person steps in. |
+| **Exports** | Editable draw.io diagrams for one design or a whole system, a share link that carries the answers, and a plain-text summary. |
+
+### The journey
+
+1. **Describe the problem.** One text box, from a sentence to a full case study. Blueprint reads it, works out whether it's one job or several, and answers whatever the description already settles.
+2. **Answer only what's left.** A short survey reworded in your own terms ("patient appointment emails", not "inputs"), with likely answers pre-selected and a reason for each, and up to three task-specific questions where they matter.
+3. **Check your answers.** Every answer is shown. The ones read from your description are marked with the words that settled them.
+4. **Get your solution.** The design, the kit and the tailored workflow appear as they are ready, with a status line saying what's happening.
+5. **Build it.** Hand `BUILD.md` to a coding assistant, paste the workflow into n8n, or export the diagram to draw.io.
+
+## How it decides
+
+Blueprint pairs an AI that makes judgement calls with a rules engine that keeps it honest. Either can run alone.
+
+- **The rules set the limits.** A hundred decision rules, each a plain-English "if this, then that" with a cited source or a labelled design choice, define what the guide can recommend: whether an agent is needed, the tools, model capabilities, autonomy, topology, hosting and data residency, gotchas and first steps. The "How it decides" page renders the rules directly from the code, so the published explanation can't drift from the logic.
+- **The AI decides within them.** With AI on, a Claude model makes the main choices for the task, weighing output quality, cost and efficiency. It works from the owner's answers, up to twenty-two chunks of the knowledge base, real cost data, and what the rules would choose, which it treats as expert input rather than an instruction. A decision that breaks a limit (a provider unavailable where the owner operates, data sent where it mustn't go, more autonomy than the risks allow, a system the guide can't build) is sent back once for repair. After that, the rules' recommendation stands.
+- **Every AI step is checked.** The AI drafts the design, writes the task-specific text of the starter kit, and tailors the n8n workflow. Each output passes its own structural check: every safeguard kept word for word, a well-formed flow, every step and model still present, approvals built in where a person must OK every action, and citations only to research the model was actually given. Anything that weakens the design is rejected, and the rules' version is shown instead, with the page saying so.
+- **You can see the difference.** The result says where the AI departed from the rules and why. "Compare with the rules" switches to the rules-only version in one click.
+
+### Decisions about people
+
+One answer on the risks question, that the system decides or recommends something about a person (a job, a loan, a home, care, a benefit), changes what gets built for any business:
+
+- Autonomy is capped. A person confirms every adverse outcome with the evidence in front of them, and anyone affected can ask for a human review.
+- A fixed, scripted step builds an evidence packet and strips who the person is before any AI step sees the case, so proxy details are removed by a mechanism rather than ignored by instruction.
+- Outcomes are compared across groups before launch and after. Model, prompt and rubric versions are pinned once tested, and every decision record keeps the evidence, the reasons, the versions and an input hash for as long as the decision could be challenged.
+- Wherever a person approves every result, the review is designed so it can't become a rubber stamp: the checklist beside the source, one case at a time, no batch approval, and override rates tracked against seeded known-wrong cases.
+- Wherever AI acts in the owner's systems behind an approval, the credential the AI steps use cannot perform the approved action. When the stakes are high, the checker is a different model from the one whose work it checks.
+
+## The knowledge base
+
+The research behind every choice lives in the repository: 58 chunks across 14 topics, from what counts as an agent and when one is worth it, through multi-agent failure modes, autonomy and the approval trap, prompt injection and designs that resist it, model choice and cost, data residency, and engineering guides for n8n, Airflow, Hermes and LangGraph, to testing, observability, and quality and reliability methods such as control charts.
+
+The chunks draw on 132 registered sources, each graded (peer-reviewed research, preprint, official documentation, practitioner writing, course notes) and dated when read. A source that was never read is never cited. Rules, model picks and the AI's reasons all cite chunks, and the test suite checks that every citation exists.
+
+## Architecture
+
+- **Front end:** React 19, TypeScript, Vite, Tailwind CSS 4 and Motion, with a hash router so it runs on any static host. Deployed on Vercel.
+- **AI layer (local only):** Vite dev-server middleware exposing six endpoints: split, interview, decide, design, kit and tailor. Each answers first on Claude Haiku 5.5 and retries once on Claude Sonnet 5.5 when its output fails a check, so the costlier model runs only when it's needed. A shared cache serves repeat questions without a model call, and near-duplicate tasks are recognised by embedding similarity. Optional Revenium metering reports each call's model, tokens and step, with prompt capture switched off so no task text leaves the machine.
+- **Core logic:** the question bank, the rules engine, the decision and design checks, the blueprint builder that turns a recommendation into a drawable diagram, model picks, cost estimates, starter-kit generation, multi-job processes and exports.
+- **Two versions.** The local version uses AI as described above. The published site decides by the rules alone, so a public copy can never spend anyone's API credit. It has no accounts, analytics or server calls; progress stays in the browser, and a shared result link carries the answers inside the link itself.
+
+## Results
+
+- 100 decision rules, each with a cited source or a labelled design choice
+- 58 knowledge-base chunks across 14 topics, drawing on 132 graded sources
+- 293 tests across 29 files on every change, alongside type checking and a production build: they walk every reachable answer path and check that each produces a complete result, a connected and honest diagram, and a starter kit that is valid JSON, valid Python and internally consistent
+- A recommendation evaluation grades the rules against 24 synthetic and 7 source-backed business cases; local benchmarks compare n8n with Airflow and n8n with LangGraph
+
+## Origin
+
+Blueprint began as AI Assignment 4 for ENMGT 5405 at Cornell University in October 2026, as a deterministic guide whose every recommendation came from published rules. Over the following weeks it gained the knowledge base, the AI decision layer with its checks, multi-job system maps, draw.io export, the starter kit and delivery contract, the safeguards for decisions about people, cost estimates, and the evaluation and benchmark suites.
+
+## What I took from it
+
+- **Rules first, then AI.** Writing the hundred rules before adding a model meant the model had something to be checked against. The AI makes the system better; the rules make it trustworthy.
+- **Check every output, or don't show it.** One retry on a stronger model, then fall back to the rules and say so. Nothing reaches the page that hasn't passed its check.
+- **Estimates are ranges.** Cost, review time and build time are always shown with their assumptions, and the guide's own judgement calls are labelled as design choices rather than dressed up as findings.
