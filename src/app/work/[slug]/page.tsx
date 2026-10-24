@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getDemo } from "@/components/demos";
 import { CustomMDX } from "@/components/mdx";
 import { PlateImage } from "@/components/PlateImage";
 import { getProject, getProjects } from "@/utils/projects";
@@ -29,6 +30,7 @@ export default async function ProjectPage({ params }: Props) {
   if (!project) notFound();
 
   const others = getProjects().filter((other) => other.slug !== slug);
+  const demo = getDemo(slug);
 
   return (
     <article>
@@ -63,19 +65,16 @@ export default async function ProjectPage({ params }: Props) {
         )}
       </header>
 
-      {project.images.length > 0 && (
-        <section className="case-gallery" aria-label="Screenshots">
-          {project.images.map((src, i) => (
-            <a key={src} href={src} target="_blank" rel="noopener noreferrer">
-              <PlateImage
-                src={src}
-                alt={`${project.title} screenshot ${i + 1}`}
-                fit="contain"
-                sizes={i === 0 ? "(max-width: 1120px) 100vw, 1000px" : "(max-width: 900px) 100vw, 500px"}
-                priority={i === 0}
-              />
-            </a>
-          ))}
+      {demo && (
+        <section className="case-demo" aria-labelledby="demo-heading">
+          <div className="case-demo__head">
+            <div className="kicker">Try it</div>
+            <h2 id="demo-heading" className="case-demo__title">
+              A working recreation you can click through
+            </h2>
+          </div>
+          <demo.Component />
+          <p className="case-demo__note">{demo.note}</p>
         </section>
       )}
 
@@ -84,6 +83,27 @@ export default async function ProjectPage({ params }: Props) {
           <CustomMDX source={project.content} />
         </div>
       </div>
+
+      {project.images.length > 0 && (
+        <section className="case-gallery case-gallery--end" aria-labelledby="screenshots-heading">
+          <div className="case-gallery__head">
+            <div className="kicker">Screenshots</div>
+            <h2 id="screenshots-heading" className="case-demo__title">
+              A closer look
+            </h2>
+          </div>
+          {project.images.map((src, i) => (
+            <a key={src} href={src} target="_blank" rel="noopener noreferrer">
+              <PlateImage
+                src={src}
+                alt={`${project.title} screenshot ${i + 1}`}
+                fit="contain"
+                sizes={i === 0 ? "(max-width: 1120px) 100vw, 1000px" : "(max-width: 900px) 100vw, 500px"}
+              />
+            </a>
+          ))}
+        </section>
+      )}
 
       <section className="section">
         <div className="wrap">
