@@ -29,7 +29,8 @@ export function FeaturedWork() {
                 <PlateImage
                   src={lead.src}
                   alt={`${lead.project.title} screenshot`}
-                  ratio="16/9"
+                  ratio={lead.project.coverRatio}
+                  fit={lead.project.coverFit}
                   sizes="(max-width: 900px) 100vw, 800px"
                 />
                 <span className="kicker">{lead.project.kind}</span>
@@ -43,6 +44,7 @@ export function FeaturedWork() {
                     src={src}
                     alt={`${project.title} screenshot`}
                     ratio="16/10"
+                    fit={project.coverFit}
                     sizes="(max-width: 720px) 100vw, 400px"
                   />
                   <span className="kicker">{project.kind}</span>
