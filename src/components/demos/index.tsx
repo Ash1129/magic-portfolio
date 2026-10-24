@@ -20,7 +20,7 @@ const demos: Record<string, Demo> = {
   },
   "transformer-capacity-monitor": {
     Component: TransformerMonitorDemo,
-    note: "This is the project's own report for the period ending 2026-10-15: all 500 transformers with their tier, the rule that set it, their 60-day control charts and capability figures, drawn over the real municipal boundaries on a dark Esri basemap. The data is the synthetic set the project ships with. Decisions you record here stay in your browser; apart from the map tiles, nothing is fetched from or sent anywhere.",
+    note: "This is the project's own report for the period ending 2026-10-15: all 500 transformers with their tier, the rule that set it, their 60-day control charts and capability figures, drawn over the real municipal boundaries over Esri satellite imagery. The data is the synthetic set the project ships with. Decisions you record here stay in your browser; apart from the map tiles, nothing is fetched from or sent anywhere.",
   },
   "seg-proposal-engine": {
     Component: LeadGeneratorDemo,

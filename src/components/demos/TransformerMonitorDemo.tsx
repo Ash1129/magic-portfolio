@@ -92,7 +92,7 @@ function tilesFor(vx: number, vy: number, vw: number, vh: number) {
     for (let ty = ty0; ty <= ty1; ty++) {
       out.push({
         key: `${z}/${tx}/${ty}`,
-        href: `https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/${z}/${ty}/${tx}`,
+        href: `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}`,
         x: offX + (tx / n - wx0) * scale,
         y: offY + (ty / n - wy0) * scale,
         size,
@@ -408,7 +408,7 @@ export function TransformerMonitorDemo() {
               ))}
             </svg>
             <span className="tcm-attrib">
-              Basemap: Esri, HERE, Garmin · ©{" "}
+              Imagery: Esri, Maxar, Earthstar Geographics · ©{" "}
               <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors
             </span>
           </div>

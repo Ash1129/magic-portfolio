@@ -3489,3 +3489,18 @@ a.demo-src:hover {
 .tcm-attrib a {
   color: inherit;
 }
+
+/* Over imagery, the dots and labels need an edge to stand out. */
+.tcm-dot {
+  stroke: rgb(0 0 0 / 0.6);
+  stroke-width: 1;
+  paint-order: stroke fill;
+}
+
+.tcm-area__label {
+  fill: rgb(255 255 255 / 0.8);
+  paint-order: stroke fill;
+  stroke: rgb(0 0 0 / 0.7);
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
