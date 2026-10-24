@@ -2721,12 +2721,7 @@ a.demo-src:hover {
   gap: var(--space-4);
 }
 
-@media (min-width: 900px) {
-  .tcm-layout {
-    grid-template-columns: minmax(0, 1.25fr) minmax(300px, 1fr);
-    align-items: start;
-  }
-}
+/* The map takes the full width; the review queue sits under it as a scrolling list. */
 
 .tcm-map-wrap {
   border: 1px solid var(--demo-line);
@@ -2840,7 +2835,7 @@ a.demo-src:hover {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  max-height: 520px;
+  max-height: 340px;
   overflow-y: auto;
 }
 

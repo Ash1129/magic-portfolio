@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import data from "@/data/transformer-monitor-demo.json";
 
 type Status = "inspect_now" | "review_needed" | "within_limits";
@@ -55,8 +55,8 @@ const SIGNAL_LABEL: Record<string, string> = {
 /* ── Map projection: Web Mercator, fitted to the county's bounding box ──
    The same projection as the tile servers use, so basemap tiles line up. */
 
-const W = 1000;
-const H = 760;
+const W = 1300;
+const H = 720;
 const PAD = 24;
 const TILE = 256;
 const ringPts = demo.areas.flatMap((a) => a.rings.flat(2));
@@ -335,6 +335,7 @@ export function TransformerMonitorDemo() {
     return `${x0 - (W * s - bw) / 2} ${y0 - (H * s - bh) / 2} ${W * s} ${H * s}`;
   }, [focusArea]);
   const zoom = focusArea ? Number(viewBox.split(" ")[2]) / W : 1;
+  const sideRef = useRef<HTMLElement>(null);
   const tiles = useMemo(() => {
     const [vx, vy, vw, vh] = viewBox.split(" ").map(Number);
     return tilesFor(vx, vy, vw, vh);
@@ -399,7 +400,7 @@ export function TransformerMonitorDemo() {
                   r={(u.id === selected ? 7 : u.status === "within_limits" ? 3.2 : 4.6) * zoom}
                   fill={TIER[u.status].color}
                   className={`tcm-dot${u.id === selected ? " is-selected" : ""}${decisions[u.id] ? " is-decided" : ""}`}
-                  onClick={() => setSelected(u.id)}
+                  onClick={() => { setSelected(u.id); sideRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" }); }}
                 >
                   <title>
                     {u.id} · {u.name} · {TIER[u.status].label}
@@ -413,7 +414,7 @@ export function TransformerMonitorDemo() {
             </span>
           </div>
 
-          <aside className="tcm-side">
+          <aside className="tcm-side" ref={sideRef}>
             {unit ? (
               <>
                 <button type="button" className="tcm-side__back" onClick={() => setSelected(null)}>
@@ -441,7 +442,7 @@ export function TransformerMonitorDemo() {
                 <ol className="tcm-queue">
                   {queue.slice(0, 40).map((u) => (
                     <li key={u.id}>
-                      <button type="button" className="tcm-queue__item" onClick={() => setSelected(u.id)}>
+                      <button type="button" className="tcm-queue__item" onClick={() => { setSelected(u.id); sideRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" }); }}>
                         <i style={{ background: TIER[u.status].color }} />
                         <span className="tcm-queue__name">
                           <span className="ranking__company">{u.name}</span>
