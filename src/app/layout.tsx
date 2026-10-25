@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     type: "website",
     siteName: person.name,
     description,
-    images: [`/api/og/generate?title=${encodeURIComponent(person.name)}`],
+    images: [`/api/og/generate?title=${encodeURIComponent("Product strategy & AI")}`],
   },
   twitter: { card: "summary_large_image" },
 };
