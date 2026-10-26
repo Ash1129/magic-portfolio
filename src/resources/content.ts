@@ -42,7 +42,7 @@ export const person = {
 };
 
 export const hero = {
-  kicker: "Product Strategy · AI · Consulting",
+  kicker: "AI Strategist | Cornell · ex-Deloitte Consulting",
   bio: "A product strategist who turns ambiguous business problems into AI products people actually use. From building GenAI proofs of concept at Deloitte to writing the PRD for an agentic customer-service product with Oracle, I sit between strategy, engineering and the customer. Currently an Engineering Management candidate at Cornell, based in Ithaca and New York.",
   photo: { src: "/images/ashwin-hero.jpg", width: 1500, height: 2000 },
   caption: "Dubai Autodrome, between laps.",

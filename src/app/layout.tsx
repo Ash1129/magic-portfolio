@@ -34,7 +34,7 @@ const description =
 export const metadata: Metadata = {
   metadataBase: new URL(baseURL),
   title: {
-    default: `${person.name} · Product Strategy & AI`,
+    default: `${person.name} · AI Strategist`,
     template: `%s · ${person.name}`,
   },
   description,
