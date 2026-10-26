@@ -567,7 +567,7 @@ figure {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
   gap: clamp(40px, 6vw, 96px);
   align-items: center;
-  padding: clamp(56px, 8vw, 120px) var(--gutter);
+  padding: clamp(40px, 5vw, 72px) var(--gutter);
 }
 
 .hero__text {
@@ -593,11 +593,18 @@ figure {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  justify-self: end;
+  max-width: 100%;
 }
 
+/* The portrait scales down so the whole frame sits under the header on first
+   open: viewport height minus header, hero padding and caption. */
 .hero__photo {
-  width: 100%;
+  display: block;
+  width: auto;
   height: auto;
+  max-width: 100%;
+  max-height: max(420px, calc(100svh - 230px));
   aspect-ratio: 3 / 4;
   object-fit: cover;
   border: 8px solid var(--color-surface);
